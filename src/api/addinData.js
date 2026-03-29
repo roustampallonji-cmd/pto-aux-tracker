@@ -57,15 +57,21 @@ function saveRecord(api, recordId, payload) {
       data: JSON.stringify(payload),
     };
     const onError = (e) => {
-      console.error('[AddInData] save failed:', e, { recordId, payload });
-      reject(e);
+      console.error('[AddInData] save failed:', JSON.stringify(e), { recordId });
+      reject(typeof e === 'string' ? new Error(e) : e);
     };
-    if (recordId) {
-      api.call('Set', { typeName: 'AddInData', entity: { id: recordId, ...entity } },
-        resolve, onError);
-    } else {
-      api.call('Add', { typeName: 'AddInData', entity },
-        (newId) => resolve(newId), onError);
+    try {
+      if (recordId) {
+        api.call('Set', { typeName: 'AddInData', entity: { id: recordId, ...entity } },
+          resolve, onError);
+      } else {
+        api.call('Add', { typeName: 'AddInData', entity },
+          (newId) => { console.log('[AddInData] Add succeeded, id:', newId); resolve(newId); },
+          onError);
+      }
+    } catch (e) {
+      console.error('[AddInData] api.call threw:', e);
+      reject(e);
     }
   });
 }
