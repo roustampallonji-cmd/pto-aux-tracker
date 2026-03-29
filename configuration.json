@@ -1,0 +1,16 @@
+{
+  "name": "PTO AUX Hours Tracker",
+  "supportEmail": "roustam.pallonji@geotab.com",
+  "version": "1.0.0",
+  "items": [
+    {
+      "url": "https://roustampallonji-cmd.github.io/pto-aux-tracker/index.html",
+      "path": "ActivityLink/",
+      "menuName": {
+        "en": "PTO AUX Hours"
+      }
+    }
+  ],
+  "isSigned": false,
+  "addInId": "a3QGFxWlrEuyBr9YipuEhA"
+}
