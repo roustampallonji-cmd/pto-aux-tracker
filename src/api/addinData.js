@@ -1,149 +1,78 @@
-// AddInData API — persists baselines, labels, and audit history per device.
-// One AddInData record per device, stored database-wide (company group).
-// All users on the same database see the same data.
+// Storage layer for baselines, labels, and audit history per device.
+// Uses localStorage (per browser). All function signatures match the
+// original AddInData API so no component changes are needed.
 
-const ADD_IN_ID = 'a3QGFxWlrEuyBr9YipuEhA'; // matches configuration.json
-const COMPANY_GROUP = { id: 'GroupCompanyId' };
+const LS_PREFIX = 'pto_aux_v1_';
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+function lsKey(deviceId) { return `${LS_PREFIX}${deviceId}`; }
 
-function getAllRecords(api) {
-  return new Promise((resolve, reject) => {
-    api.call(
-      'Get',
-      { typeName: 'AddInData', search: { addInId: ADD_IN_ID } },
-      (records) => resolve(records || []),
-      reject
-    );
-  });
+function lsRead(deviceId) {
+  try { return JSON.parse(localStorage.getItem(lsKey(deviceId))) || null; }
+  catch { return null; }
 }
 
-function parseRecord(record) {
-  try { return JSON.parse(record.data); } catch { return null; }
+function lsWrite(deviceId, data) {
+  localStorage.setItem(lsKey(deviceId), JSON.stringify(data));
 }
 
 // ── Read ──────────────────────────────────────────────────────────────────
 
-// Returns a map of deviceId → { recordId, labels, baselines }
-export async function loadAllDeviceData(api) {
-  const records = await getAllRecords(api);
+// Returns a map of deviceId → { labels, baselines }
+export function loadAllDeviceData(_api) {
   const map = {};
-  for (const record of records) {
-    const data = parseRecord(record);
-    if (data?.deviceId) {
-      map[data.deviceId] = {
-        recordId: record.id,
-        labels: data.labels || {},
-        baselines: data.baselines || {},
-      };
-    }
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(LS_PREFIX)) continue;
+    const deviceId = key.slice(LS_PREFIX.length);
+    const data = lsRead(deviceId);
+    if (data) map[deviceId] = { labels: data.labels || {}, baselines: data.baselines || {} };
   }
-  return map;
+  return Promise.resolve(map);
 }
 
-// Returns { recordId, labels, baselines } for a single device (or defaults).
-export async function loadDeviceData(api, deviceId) {
-  const all = await loadAllDeviceData(api);
-  return all[deviceId] || { recordId: null, labels: {}, baselines: {} };
-}
-
-// ── Write helpers ─────────────────────────────────────────────────────────
-
-function saveRecord(api, recordId, payload) {
-  return new Promise((resolve, reject) => {
-    const entity = {
-      addInId: ADD_IN_ID,
-      groups: [COMPANY_GROUP],
-      data: JSON.stringify(payload),
-    };
-    const onError = (e) => {
-      console.error('[AddInData] save failed:', JSON.stringify(e), { recordId });
-      reject(typeof e === 'string' ? new Error(e) : e);
-    };
-    try {
-      if (recordId) {
-        api.call('Set', { typeName: 'AddInData', entity: { id: recordId, ...entity } },
-          resolve, onError);
-      } else {
-        api.call('Add', { typeName: 'AddInData', entity },
-          (newId) => { console.log('[AddInData] Add succeeded, id:', newId); resolve(newId); },
-          onError);
-      }
-    } catch (e) {
-      console.error('[AddInData] api.call threw:', e);
-      reject(e);
-    }
-  });
+export function loadDeviceData(_api, deviceId) {
+  const data = lsRead(deviceId) || {};
+  return Promise.resolve({ labels: data.labels || {}, baselines: data.baselines || {} });
 }
 
 // ── Baseline ──────────────────────────────────────────────────────────────
 
-// Save a new baseline entry for a device+AUX. Returns updated data.
-export async function saveBaseline(api, deviceId, auxKey, value, comment, user, userId) {
-  const existing = await loadDeviceData(api, deviceId);
-
-  const entry = {
-    value: Number(value),
-    comment,
-    user,
-    userId,
-    timestamp: new Date().toISOString(),
-  };
-
+export async function saveBaseline(_api, deviceId, auxKey, value, comment, user, userId) {
+  const existing = lsRead(deviceId) || { labels: {}, baselines: {} };
+  const entry = { value: Number(value), comment, user, userId, timestamp: new Date().toISOString() };
   const baselines = { ...existing.baselines };
   if (!Array.isArray(baselines[auxKey])) baselines[auxKey] = [];
   baselines[auxKey] = [...baselines[auxKey], entry];
-
-  await saveRecord(api, existing.recordId, {
-    deviceId,
-    labels: existing.labels,
-    baselines,
-  });
-
+  lsWrite(deviceId, { ...existing, baselines });
   return baselines[auxKey];
 }
 
-// Get active (latest) baseline value for a device+AUX. Returns 0 if none.
 export function getActiveBaseline(deviceData, auxKey) {
   const history = deviceData?.baselines?.[auxKey];
   if (!Array.isArray(history) || !history.length) return 0;
   return history[history.length - 1].value;
 }
 
-// Get full baseline history for a device+AUX.
 export function getBaselineHistory(deviceData, auxKey) {
   return deviceData?.baselines?.[auxKey] || [];
 }
 
 // ── Labels ────────────────────────────────────────────────────────────────
 
-// Save labels for a single device. Only updates provided keys.
-export async function saveDeviceLabels(api, deviceId, newLabels) {
-  const existing = await loadDeviceData(api, deviceId);
+export async function saveDeviceLabels(_api, deviceId, newLabels) {
+  const existing = lsRead(deviceId) || { labels: {}, baselines: {} };
   const labels = { ...existing.labels, ...newLabels };
-  await saveRecord(api, existing.recordId, {
-    deviceId,
-    labels,
-    baselines: existing.baselines,
-  });
+  lsWrite(deviceId, { ...existing, labels });
   return labels;
 }
 
-// Bulk save labels for multiple devices at once.
-export async function bulkSaveLabels(api, deviceIds, newLabels, allDeviceData) {
-  await Promise.all(
-    deviceIds.map(async (deviceId) => {
-      const existing = allDeviceData[deviceId] || { recordId: null, labels: {}, baselines: {} };
-      const labels = { ...existing.labels };
-      // Only apply keys where newLabels[key] is not empty string (skip blanks)
-      for (const [k, v] of Object.entries(newLabels)) {
-        if (v !== '') labels[k] = v;
-      }
-      await saveRecord(api, existing.recordId, {
-        deviceId,
-        labels,
-        baselines: existing.baselines || {},
-      });
-    })
-  );
+export async function bulkSaveLabels(_api, deviceIds, newLabels) {
+  for (const deviceId of deviceIds) {
+    const existing = lsRead(deviceId) || { labels: {}, baselines: {} };
+    const labels = { ...existing.labels };
+    for (const [k, v] of Object.entries(newLabels)) {
+      if (v !== '') labels[k] = v;
+    }
+    lsWrite(deviceId, { ...existing, labels });
+  }
 }

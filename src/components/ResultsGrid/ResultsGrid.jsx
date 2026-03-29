@@ -66,7 +66,6 @@ export default function ResultsGrid({
       onDeviceDataChange();
     } catch (e) {
       console.error('[Labels] save failed:', e);
-      alert('Label save failed: ' + (e?.message || JSON.stringify(e)));
     } finally {
       // Only close this cell if no other cell was opened in the meantime
       setEditingLabel(prev =>
