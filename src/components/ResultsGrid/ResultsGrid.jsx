@@ -200,6 +200,7 @@ export default function ResultsGrid({
                       return (
                         <td key={key} className="total-cell" style={{ textAlign: 'center' }}>
                           {total !== null ? fmtHoursNum(total) : '—'}
+                          {customLabel && <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{customLabel}</div>}
                         </td>
                       );
                     }
@@ -208,6 +209,7 @@ export default function ResultsGrid({
                       <React.Fragment key={key}>
                         <td style={{ textAlign: 'center' }}>
                           {duration !== null ? fmtHoursNum(duration) : '—'}
+                          {customLabel && <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{customLabel}</div>}
                         </td>
                         <td style={{ textAlign: 'center', minWidth: 140 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>

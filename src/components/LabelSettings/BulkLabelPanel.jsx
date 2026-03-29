@@ -3,7 +3,6 @@ import { Button, ButtonType } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
 import { bulkSaveLabels } from '../../api/addinData';
 import ConfirmModal from '../Modals/ConfirmModal';
-import SuccessModal from '../Modals/SuccessModal';
 
 export default function BulkLabelPanel({ api, selectedDeviceIds, allDeviceIds, allDeviceData, deviceMap, session, onDone, onCancel }) {
   const [labels, setLabels] = useState({});
@@ -12,7 +11,6 @@ export default function BulkLabelPanel({ api, selectedDeviceIds, allDeviceIds, a
   const [showFleetConfirm, setShowFleetConfirm] = useState(false);
   const [fleetConfirmed, setFleetConfirmed] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const targetIds = fleetConfirmed ? allDeviceIds : selectedDeviceIds;
   const targetLabel = fleetConfirmed
@@ -44,23 +42,10 @@ export default function BulkLabelPanel({ api, selectedDeviceIds, allDeviceIds, a
     setSaving(true);
     try {
       await bulkSaveLabels(api, targetIds, toApply, allDeviceData);
-      setSuccess(true);
+      onDone();
     } finally {
       setSaving(false);
     }
-  }
-
-  if (success) {
-    return (
-      <SuccessModal
-        title="Changes Have Been Made"
-        lines={[
-          `Labels applied to ${targetLabel} successfully.`,
-        ]}
-        user={{ name: session?.userName }}
-        onClose={onDone}
-      />
-    );
   }
 
   return (
