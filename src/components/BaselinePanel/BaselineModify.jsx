@@ -13,7 +13,7 @@ export default function BaselineModify({ api, deviceId, auxKey, auxLabel, curren
     if (value === '' || isNaN(Number(value))) { setError('Enter a valid number.'); return; }
     setSaving(true);
     try {
-      await saveBaseline(api, deviceId, auxKey, Number(value), comment.trim(), session.userName, session.userId);
+      await saveBaseline(api, deviceId, auxKey, Number(value), comment.trim(), session?.userName || '', session?.userId || '');
       onSaved({ auxKey, value: Number(value), comment, user: session.userName });
     } catch (e) {
       const msg = e?.message || (typeof e === 'string' ? e : JSON.stringify(e));
