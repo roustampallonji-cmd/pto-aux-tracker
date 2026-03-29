@@ -3,7 +3,7 @@ import { AUX_DIAGNOSTICS, AUX_KEYS } from './api/diagnostics';
 import { fetchFleetAuxHours } from './api/statusData';
 import { fetchDeviceStatuses } from './api/deviceStatus';
 import { fetchDevices, fetchGroups } from './api/devices';
-import { loadAllDeviceData, getActiveBaseline } from './api/addinData';
+import { initStorage, loadAllDeviceData, getActiveBaseline } from './api/addinData';
 import { getSession } from './api/session';
 import { getPresetRange } from './utils/formatters';
 import FilterPane from './components/FilterPane/FilterPane';
@@ -35,12 +35,14 @@ export default function App({ api }) {
 
   // ── Init ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    Promise.all([
-      fetchDevices(api).then(setDevices),
-      fetchGroups(api).then(setGroups),
-      getSession(api).then(setSession),
-      loadAllDeviceData(api).then(setDeviceDataMap),
-    ]);
+    initStorage(api).then(() =>
+      Promise.all([
+        fetchDevices(api).then(setDevices),
+        fetchGroups(api).then(setGroups),
+        getSession(api).then(setSession),
+        loadAllDeviceData(api).then(setDeviceDataMap),
+      ])
+    );
   }, []);
 
   // ── Reload device data (after saves) ─────────────────────────────────
