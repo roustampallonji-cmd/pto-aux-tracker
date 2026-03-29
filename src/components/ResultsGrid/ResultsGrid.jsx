@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
-import { fmtHoursNum, fmtRelative, fmtDateTime } from '../../utils/formatters';
-import { getActiveBaseline, getBaselineHistory } from '../../api/addinData';
+import { fmtHoursNum, fmtRelative, fmtDateTime, fmtDate } from '../../utils/formatters';
+import { getActiveBaseline, getBaselineHistory, saveDeviceLabels } from '../../api/addinData';
 import BaselineModify from '../BaselinePanel/BaselineModify';
 import BaselineHistory from '../BaselinePanel/BaselineHistory';
-import AssetLabelPanel from '../LabelSettings/AssetLabelPanel';
 import BulkLabelPanel from '../LabelSettings/BulkLabelPanel';
 import ConfirmModal from '../Modals/ConfirmModal';
 import { saveBaseline } from '../../api/addinData';
@@ -19,10 +18,11 @@ export default function ResultsGrid({
   const [expandedAux, setExpandedAux] = useState(new Set(AUX_DIAGNOSTICS.map(d => d.key)));
   const [modifyingCell, setModifyingCell] = useState(null);   // { deviceId, auxKey }
   const [historyCell, setHistoryCell] = useState(null);        // { deviceId, auxKey }
-  const [labelDevice, setLabelDevice] = useState(null);        // deviceId
   const [bulkPanel, setBulkPanel] = useState(false);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [dashReadings, setDashReadings] = useState({});        // { `${deviceId}__${auxKey}`: value }
+  const [editingLabel, setEditingLabel] = useState(null);      // { deviceId, auxKey }
+  const [editLabelValue, setEditLabelValue] = useState('');
 
   const visibleAux = AUX_DIAGNOSTICS.filter(d => activeAux.includes(d.key));
 
@@ -54,6 +54,19 @@ export default function ResultsGrid({
   function getDeviceLabel(deviceId, auxKey) {
     return deviceDataMap[deviceId]?.labels?.[auxKey] || '';
   }
+
+  function startLabelEdit(deviceId, auxKey, currentLabel) {
+    setEditingLabel({ deviceId, auxKey });
+    setEditLabelValue(currentLabel || '');
+  }
+
+  async function commitLabelEdit(deviceId, auxKey) {
+    await saveDeviceLabels(api, deviceId, { [auxKey]: editLabelValue });
+    setEditingLabel(null);
+    onDeviceDataChange();
+  }
+
+  function cancelLabelEdit() { setEditingLabel(null); }
 
   async function handleDashUpdate(deviceId, auxKey) {
     const key = `${deviceId}__${auxKey}`;
@@ -184,7 +197,6 @@ export default function ResultsGrid({
                   <td>
                     <div style={{ fontWeight: 600 }}>{device.name || r.deviceId}</div>
                     <div style={{ fontSize: 11, color: '#6b7280' }}>{device.serialNumber}</div>
-                    <button className="icon-btn" title="Edit labels" onClick={() => setLabelDevice(r.deviceId)}>⚙</button>
                   </td>
 
                   {visibleAux.map(({ key, label }) => {
@@ -196,12 +208,36 @@ export default function ResultsGrid({
                     const isExpanded = expandedAux.has(key);
                     const isModifying = modifyingCell?.deviceId === r.deviceId && modifyingCell?.auxKey === key;
                     const isHistory = historyCell?.deviceId === r.deviceId && historyCell?.auxKey === key;
+                    const isEditingLabel = editingLabel?.deviceId === r.deviceId && editingLabel?.auxKey === key;
+
+                    const inlineLabelEl = isEditingLabel ? (
+                      <input
+                        autoFocus
+                        value={editLabelValue}
+                        onChange={e => setEditLabelValue(e.target.value)}
+                        onBlur={() => commitLabelEdit(r.deviceId, key)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') commitLabelEdit(r.deviceId, key);
+                          if (e.key === 'Escape') cancelLabelEdit();
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        style={{ fontSize: 10, width: '80%', border: '1px solid #3b82f6', borderRadius: 3, padding: '1px 4px', marginTop: 2 }}
+                      />
+                    ) : (
+                      <div
+                        style={{ fontSize: 10, color: customLabel ? '#1f4e79' : '#c0c4cc', marginTop: 2, cursor: 'text', userSelect: 'none' }}
+                        onClick={() => startLabelEdit(r.deviceId, key, customLabel)}
+                        title="Click to rename"
+                      >
+                        {customLabel || 'label…'}
+                      </div>
+                    );
 
                     if (!isExpanded) {
                       return (
                         <td key={key} className="total-cell" style={{ textAlign: 'center' }}>
                           {total !== null ? fmtHoursNum(total) : '—'}
-                          {customLabel && <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{customLabel}</div>}
+                          {inlineLabelEl}
                         </td>
                       );
                     }
@@ -210,7 +246,7 @@ export default function ResultsGrid({
                       <React.Fragment key={key}>
                         <td style={{ textAlign: 'center' }}>
                           {duration !== null ? fmtHoursNum(duration) : '—'}
-                          {customLabel && <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{customLabel}</div>}
+                          {inlineLabelEl}
                         </td>
                         <td style={{ textAlign: 'center', minWidth: 140 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>
@@ -281,21 +317,6 @@ export default function ResultsGrid({
                   </td>
                 </tr>
 
-                {/* Label panel inline */}
-                {labelDevice === r.deviceId && (
-                  <tr>
-                    <td colSpan={2 + visibleAux.length * 3 + 1} style={{ padding: '8px 12px', background: '#f8faff' }}>
-                      <AssetLabelPanel
-                        api={api}
-                        deviceId={r.deviceId}
-                        deviceName={device.name}
-                        currentLabels={devData.labels || {}}
-                        onSaved={() => { setLabelDevice(null); onDeviceDataChange(); }}
-                        onCancel={() => setLabelDevice(null)}
-                      />
-                    </td>
-                  </tr>
-                )}
               </React.Fragment>
             );
           })}
