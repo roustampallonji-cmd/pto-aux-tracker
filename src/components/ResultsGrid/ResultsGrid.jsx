@@ -61,9 +61,15 @@ export default function ResultsGrid({
   }
 
   async function commitLabelEdit(deviceId, auxKey) {
-    await saveDeviceLabels(api, deviceId, { [auxKey]: editLabelValue });
-    setEditingLabel(null);
-    onDeviceDataChange();
+    try {
+      await saveDeviceLabels(api, deviceId, { [auxKey]: editLabelValue });
+      onDeviceDataChange();
+    } catch (e) {
+      console.error('[Labels] save failed:', e);
+      alert('Label save failed: ' + (e?.message || JSON.stringify(e)));
+    } finally {
+      setEditingLabel(null);
+    }
   }
 
   function cancelLabelEdit() { setEditingLabel(null); }

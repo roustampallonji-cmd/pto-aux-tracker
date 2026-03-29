@@ -16,7 +16,8 @@ export default function BaselineModify({ api, deviceId, auxKey, auxLabel, curren
       await saveBaseline(api, deviceId, auxKey, Number(value), comment.trim(), session.userName, session.userId);
       onSaved({ auxKey, value: Number(value), comment, user: session.userName });
     } catch (e) {
-      setError('Failed to save. Please try again.');
+      const msg = e?.message || (typeof e === 'string' ? e : JSON.stringify(e));
+      setError(`Save failed: ${msg}`);
     } finally {
       setSaving(false);
     }

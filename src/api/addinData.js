@@ -56,12 +56,16 @@ function saveRecord(api, recordId, payload) {
       groups: [COMPANY_GROUP],
       data: JSON.stringify(payload),
     };
+    const onError = (e) => {
+      console.error('[AddInData] save failed:', e, { recordId, payload });
+      reject(e);
+    };
     if (recordId) {
       api.call('Set', { typeName: 'AddInData', entity: { id: recordId, ...entity } },
-        resolve, reject);
+        resolve, onError);
     } else {
       api.call('Add', { typeName: 'AddInData', entity },
-        (newId) => resolve(newId), reject);
+        (newId) => resolve(newId), onError);
     }
   });
 }
