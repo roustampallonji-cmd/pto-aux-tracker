@@ -146,22 +146,21 @@ export default function FilterPane({
 
       {/* AUX Channels + Status */}
       <div className="filter-section">
-        <div className="filter-label">AUX Channels (active on selected assets)</div>
+        <div className="filter-label">Show / Hide AUX Columns</div>
         <div className="aux-pills">
           {AUX_DIAGNOSTICS.map(({ key, label }) => {
-            const isActive = activeAuxSet.has(key);
-            if (!isActive) return null;
+            const hasData = activeAuxSet.has(key);
+            const customLabel = label;
             return (
               <button
                 key={key}
                 className={`aux-pill ${activeAux.includes(key) ? 'active' : ''}`}
                 onClick={() => toggleAux(key)}
-              >{label}</button>
+                title={hasData ? 'Has data' : 'No data in selected range'}
+                style={{ opacity: hasData ? 1 : 0.5 }}
+              >{customLabel}</button>
             );
           })}
-          {activeAuxSet.size === 0 && (
-            <span className="text-muted">Select assets to see active AUX channels</span>
-          )}
         </div>
 
         <div className="filter-label" style={{ marginTop: 12 }}>Status Filter</div>
