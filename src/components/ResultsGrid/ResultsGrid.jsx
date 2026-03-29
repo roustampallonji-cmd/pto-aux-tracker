@@ -120,6 +120,7 @@ export default function ResultsGrid({
       </div>
 
       {/* Table */}
+      <div className="results-table-wrap">
       <table className="results-table">
         <thead>
           <tr>
@@ -300,6 +301,7 @@ export default function ResultsGrid({
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

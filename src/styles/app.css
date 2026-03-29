@@ -180,14 +180,19 @@ body {
 
 .expand-collapse-btns { display: flex; gap: 6px; }
 
+.results-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #e0e3e8;
+  border-radius: 8px;
+}
+
 .results-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border: 1px solid #e0e3e8;
-  border-radius: 8px;
-  overflow: hidden;
   font-size: 13px;
+  min-width: 600px;
 }
 
 .results-table th {
