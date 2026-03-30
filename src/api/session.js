@@ -40,6 +40,19 @@ export function getSession(api, state) {
       );
     }
 
+    // Diagnostic — log api + state properties so we can see where the email lives
+    try {
+      console.log('[session] api keys:', Object.keys(api));
+      console.log('[session] api.credentials:', api.credentials);
+      console.log('[session] api._credentials:', api._credentials);
+      console.log('[session] api.userName:', api.userName);
+      console.log('[session] api.user:', api.user);
+      console.log('[session] state keys:', state ? Object.keys(state) : 'no state');
+      console.log('[session] state.getUserName:', typeof state?.getUserName);
+      console.log('[session] state.credentials:', state?.credentials);
+      console.log('[session] state.userName:', state?.userName);
+    } catch (e) { console.log('[session] diag error:', e); }
+
     // 1. Try state object (MyGeotab lifecycle may expose getUserName())
     let stateEmail = '';
     try {
