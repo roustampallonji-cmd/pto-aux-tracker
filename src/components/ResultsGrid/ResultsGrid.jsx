@@ -145,14 +145,14 @@ export default function ResultsGrid({
       <table className="results-table">
         <thead>
           <tr>
-            <th style={{ width: 32 }}>
+            <th style={{ width: 32 }} className="sticky-left-0">
               <input
                 type="checkbox"
                 checked={assetResults.length > 0 && assetResults.every(r => selectedRows.has(r.deviceId))}
                 onChange={toggleAllVisible}
               />
             </th>
-            <th>Asset</th>
+            <th className="sticky-left-1">Asset</th>
             {visibleAux.map(({ key, label }) => {
               const expanded = expandedAux.has(key);
               return expanded ? (
@@ -171,10 +171,10 @@ export default function ResultsGrid({
                 </th>
               );
             })}
-            <th>Communication</th>
+            <th className="sticky-right">Communication</th>
           </tr>
           <tr>
-            <th /><th />
+            <th className="sticky-left-0" /><th className="sticky-left-1" />
             {visibleAux.map(({ key }) =>
               expandedAux.has(key) ? (
                 <React.Fragment key={key}>
@@ -186,7 +186,7 @@ export default function ResultsGrid({
                 <th key={key} className="sub-header">Total (hrs)</th>
               )
             )}
-            <th />
+            <th className="sticky-right" />
           </tr>
         </thead>
 
@@ -199,10 +199,10 @@ export default function ResultsGrid({
             return (
               <React.Fragment key={r.deviceId}>
                 <tr>
-                  <td>
+                  <td className="sticky-left-0">
                     <input type="checkbox" checked={selectedRows.has(r.deviceId)} onChange={() => toggleRow(r.deviceId)} />
                   </td>
-                  <td>
+                  <td className="sticky-left-1">
                     <div style={{ fontWeight: 600 }}>{device.name || r.deviceId}</div>
                     <div style={{ fontSize: 11, color: '#6b7280' }}>{device.serialNumber}</div>
                   </td>
@@ -290,7 +290,7 @@ export default function ResultsGrid({
                   })}
 
                   {/* Communication */}
-                  <td>
+                  <td className="sticky-right">
                     <div className="comm-cell">
                       <div className="comm-status">
                         <span className={`comm-dot ${isOnline ? 'online' : 'offline'}`} />
