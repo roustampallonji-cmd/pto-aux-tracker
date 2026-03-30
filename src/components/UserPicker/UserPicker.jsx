@@ -20,17 +20,18 @@ export default function UserPicker({ api, session, onSessionChange }) {
   }, []);
 
   function select(u) {
-    const selected = { userName: u.userName, displayName: u.userName, userId: u.id || '' };
+    const email = u.userName || u.name || '';
+    const selected = { userName: email, displayName: email, userId: u.id || '' };
     saveSelectedUser(selected);
     onSessionChange(selected);
     setOpen(false);
     setSearch('');
   }
 
-  const filtered = users.filter(u =>
-    u.userName.toLowerCase().includes(search.toLowerCase()) ||
-    (u.name || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users.filter(u => {
+    const hay = `${u.userName || ''} ${u.name || ''}`.toLowerCase();
+    return hay.includes(search.toLowerCase());
+  });
 
   return (
     <div className="user-picker-bar">
@@ -67,8 +68,8 @@ export default function UserPicker({ api, session, onSessionChange }) {
                   onMouseEnter={e => e.currentTarget.style.background = '#f0f4ff'}
                   onMouseLeave={e => e.currentTarget.style.background = ''}
                 >
-                  <div style={{ fontWeight: 500 }}>{u.userName}</div>
-                  {u.name && <div style={{ fontSize: 11, color: '#6b7280' }}>{u.name}</div>}
+                  <div style={{ fontWeight: 500 }}>{u.userName || u.name}</div>
+                  {u.name && u.userName && <div style={{ fontSize: 11, color: '#6b7280' }}>{u.name}</div>}
                 </div>
               ))
             }

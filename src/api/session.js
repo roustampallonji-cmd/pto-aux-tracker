@@ -18,9 +18,11 @@ export function fetchUsers(api) {
   return new Promise((resolve) => {
     api.call('Get', { typeName: 'User', search: {} },
       (users) => {
-        const filtered = (users || []).filter(u => u.userName);
+        console.log('[fetchUsers] first user keys:', users?.[0] ? Object.keys(users[0]) : 'none');
+        console.log('[fetchUsers] first user sample:', JSON.stringify(users?.[0]));
+        const filtered = (users || []).filter(u => u.name || u.userName);
         console.log('[fetchUsers] raw:', users?.length, 'filtered:', filtered.length);
-        resolve(filtered.sort((a, b) => a.userName.localeCompare(b.userName)));
+        resolve(filtered.sort((a, b) => (a.name || a.userName || '').localeCompare(b.name || b.userName || '')));
       },
       (err) => {
         console.error('[fetchUsers] API error:', err);
