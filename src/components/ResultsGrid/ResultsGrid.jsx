@@ -7,7 +7,12 @@ import BaselineModify from '../BaselinePanel/BaselineModify';
 import BaselineHistory from '../BaselinePanel/BaselineHistory';
 import BulkLabelPanel from '../LabelSettings/BulkLabelPanel';
 import ConfirmModal from '../Modals/ConfirmModal';
+import CorrectionConfirmModal from '../Modals/CorrectionConfirmModal';
 import { saveBaseline } from '../../api/addinData';
+
+const SKIP_KEY = 'pto_aux_correction_skip_v1';
+function getSkipCount() { return parseInt(localStorage.getItem(SKIP_KEY) || '0', 10); }
+function setSkipCount(n) { localStorage.setItem(SKIP_KEY, String(n)); }
 
 export default function ResultsGrid({
   api, session,
@@ -21,6 +26,8 @@ export default function ResultsGrid({
   const [bulkPanel, setBulkPanel] = useState(false);
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [dashReadings, setDashReadings] = useState({});        // { `${deviceId}__${auxKey}`: value }
+  const [meterReadings, setMeterReadings] = useState({});      // { `${deviceId}__${auxKey}`: value }
+  const [correctionConfirm, setCorrectionConfirm] = useState(null); // { deviceId, auxKey, offset, meterReading, currentTotal, newBaseline }
   const [editingLabel, setEditingLabel] = useState(null);      // { deviceId, auxKey }
   const [editLabelValue, setEditLabelValue] = useState('');
 
@@ -76,6 +83,24 @@ export default function ResultsGrid({
 
   function cancelLabelEdit() { setEditingLabel(null); }
 
+  async function doApplyCorrection(deviceId, auxKey, newBaseline, offset, meterReading, currentTotal) {
+    const comment = `Meter correction: physical read ${meterReading.toFixed(2)} hrs, calculated ${currentTotal.toFixed(2)} hrs, offset ${offset >= 0 ? '+' : ''}${offset.toFixed(2)} hrs`;
+    await saveBaseline(api, deviceId, auxKey, newBaseline, comment, session?.displayName || session?.userName || '', session?.userId || '');
+    setMeterReadings(prev => { const n = { ...prev }; delete n[`${deviceId}__${auxKey}`]; return n; });
+    setCorrectionConfirm(null);
+    onDeviceDataChange();
+  }
+
+  function handleApplyCorrection(deviceId, auxKey, newBaseline, offset, meterReading, currentTotal) {
+    const skipCount = getSkipCount();
+    if (skipCount > 0) {
+      setSkipCount(skipCount - 1);
+      doApplyCorrection(deviceId, auxKey, newBaseline, offset, meterReading, currentTotal);
+    } else {
+      setCorrectionConfirm({ deviceId, auxKey, newBaseline, offset, meterReading, currentTotal });
+    }
+  }
+
   async function handleDashUpdate(deviceId, auxKey) {
     const key = `${deviceId}__${auxKey}`;
     const val = dashReadings[key];
@@ -113,6 +138,28 @@ export default function ResultsGrid({
           <Button type={ButtonType.Secondary} onClick={() => setBulkPanel(true)}>⚙ Edit Labels</Button>
           <Button type={ButtonType.Secondary} onClick={() => setSelectedRows(new Set())}>✕ Clear</Button>
         </div>
+      )}
+
+      {/* Correction confirm modal */}
+      {correctionConfirm && (
+        <CorrectionConfirmModal
+          meterReading={correctionConfirm.meterReading}
+          currentTotal={correctionConfirm.currentTotal}
+          offset={correctionConfirm.offset}
+          newBaseline={correctionConfirm.newBaseline}
+          onConfirm={(dontAsk) => {
+            if (dontAsk) setSkipCount(10);
+            doApplyCorrection(
+              correctionConfirm.deviceId,
+              correctionConfirm.auxKey,
+              correctionConfirm.newBaseline,
+              correctionConfirm.offset,
+              correctionConfirm.meterReading,
+              correctionConfirm.currentTotal
+            );
+          }}
+          onCancel={() => setCorrectionConfirm(null)}
+        />
       )}
 
       {/* Bulk label panel */}
@@ -157,7 +204,7 @@ export default function ResultsGrid({
               const expanded = expandedAux.has(key);
               return expanded ? (
                 <React.Fragment key={key}>
-                  <th className="aux-group-header" colSpan={3}>
+                  <th className="aux-group-header" colSpan={5}>
                     <span className="aux-header-toggle" onClick={() => toggleAuxExpand(key)}>
                       <span className="toggle-icon">▼</span> {label}
                     </span>
@@ -181,6 +228,8 @@ export default function ResultsGrid({
                   <th className="sub-header">Duration (hrs)</th>
                   <th className="sub-header">Baseline (hrs)</th>
                   <th className="sub-header">Total (hrs)</th>
+                  <th className="sub-header">Meter Reading (hrs)</th>
+                  <th className="sub-header">Offset (hrs)</th>
                 </React.Fragment>
               ) : (
                 <th key={key} className="sub-header">Total (hrs)</th>
@@ -250,6 +299,14 @@ export default function ResultsGrid({
                       );
                     }
 
+                    const mrKey = `${r.deviceId}__${key}`;
+                    const mrVal = meterReadings[mrKey] || '';
+                    const mrNum = parseFloat(mrVal);
+                    const hasValidMr = mrVal !== '' && !isNaN(mrNum) && total !== null;
+                    const offset = hasValidMr ? mrNum - total : null;
+                    const newBaseline = hasValidMr ? baseline + offset : null;
+                    const offsetColor = offset === null ? '' : offset > 0 ? '#16a34a' : offset < 0 ? '#d97706' : '#9ca3af';
+
                     return (
                       <React.Fragment key={key}>
                         <td style={{ textAlign: 'center' }}>
@@ -284,6 +341,34 @@ export default function ResultsGrid({
                         </td>
                         <td className="total-cell" style={{ textAlign: 'center' }}>
                           {total !== null ? fmtHoursNum(total) : '—'}
+                        </td>
+                        <td style={{ textAlign: 'center', minWidth: 110 }}>
+                          <input
+                            className="meter-reading-input"
+                            type="number"
+                            placeholder="Enter hrs"
+                            value={mrVal}
+                            onChange={e => setMeterReadings(prev => ({ ...prev, [mrKey]: e.target.value }))}
+                            disabled={total === null}
+                          />
+                        </td>
+                        <td style={{ textAlign: 'center', minWidth: 110 }}>
+                          {offset !== null && (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                              <span style={{ fontWeight: 700, fontSize: 12, color: offsetColor }}>
+                                {offset >= 0 ? '+' : ''}{offset.toFixed(2)}
+                              </span>
+                              {offset !== 0 && (
+                                <button
+                                  className="small-btn"
+                                  style={{ fontSize: 10, padding: '2px 8px', background: '#1f4e79', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                                  onClick={() => handleApplyCorrection(r.deviceId, key, newBaseline, offset, mrNum, total)}
+                                >
+                                  Apply
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </td>
                       </React.Fragment>
                     );

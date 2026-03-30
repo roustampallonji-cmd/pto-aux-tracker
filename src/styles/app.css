@@ -483,6 +483,43 @@ body {
 .validation-ok { color: #16a34a; }
 .validation-warn { color: #d97706; }
 
+/* ── Meter reading correction ── */
+.meter-reading-input {
+  width: 88px;
+  padding: 4px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: right;
+}
+.meter-reading-input:focus { outline: none; border-color: #3b82f6; }
+.meter-reading-input:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+
+.correction-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+.correction-row-total {
+  font-weight: 700;
+  color: #1f4e79;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+.correction-dont-ask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  justify-content: center;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
 /* ── Audit Log ── */
 .audit-filters {
   display: flex;
