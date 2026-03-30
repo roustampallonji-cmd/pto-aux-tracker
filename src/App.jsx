@@ -10,9 +10,10 @@ import FilterPane from './components/FilterPane/FilterPane';
 import ResultsGrid from './components/ResultsGrid/ResultsGrid';
 import ChartView from './components/ChartView/ChartView';
 import ImportExport from './components/ImportExport/ImportExport';
+import UserPicker from './components/UserPicker/UserPicker';
 import './styles/app.css';
 
-export default function App({ api, state }) {
+export default function App({ api }) {
   // ── Data ──────────────────────────────────────────────────────────────
   const [devices, setDevices] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -39,7 +40,7 @@ export default function App({ api, state }) {
       Promise.all([
         fetchDevices(api).then(setDevices),
         fetchGroups(api).then(setGroups),
-        getSession(api, state).then(setSession),
+        getSession(api).then(setSession),
         loadAllDeviceData(api).then(setDeviceDataMap),
       ])
     );
@@ -115,6 +116,8 @@ export default function App({ api, state }) {
           PTO AUX Hours Tracker
         </span>
       </div>
+
+      <UserPicker api={api} session={session} onSessionChange={setSession} />
 
       <FilterPane
         devices={devices}

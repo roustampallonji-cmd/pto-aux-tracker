@@ -10,11 +10,11 @@ geotab.addin.ptoAuxTracker = function () {
     initialize(api, state, callback) {
       const el = document.getElementById('pto-aux-root');
       reactRoot = createRoot(el);
-      reactRoot.render(<App api={api} state={state} />);
+      reactRoot.render(<App api={api} />);
       callback();
     },
-    focus(api, state) {
-      if (reactRoot) reactRoot.render(<App api={api} state={state} />);
+    focus(api) {
+      if (reactRoot) reactRoot.render(<App api={api} />);
     },
     blur() {},
   };

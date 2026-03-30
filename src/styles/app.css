@@ -336,6 +336,27 @@ body {
   font-size: 13px;
 }
 
+/* ── User picker ── */
+.user-picker-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.user-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 200;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 280px;
+}
+
 /* ── Bulk action bar ── */
 .bulk-bar {
   background: #1f4e79;
