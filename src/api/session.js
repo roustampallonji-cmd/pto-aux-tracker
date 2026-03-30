@@ -24,13 +24,25 @@ export function fetchUsers(api) {
 }
 
 // Try to auto-detect session (works in non-SSO environments)
-export function getSession(api) {
+export function getSession(api, state) {
   return new Promise((resolve) => {
     // 1. Check localStorage for a previously saved user selection
     const saved = loadSelectedUser();
     if (saved?.userName) { resolve(saved); return; }
 
-    // 2. Try api.getSession() — throws in SSO/Keycloak environments
+    // 2. Try state.getState() — MyGeotab page state may include userName
+    try {
+      const pageState = typeof state?.getState === 'function' ? state.getState() : null;
+      const email = pageState?.userName || pageState?.username || '';
+      if (email) {
+        const session = { userName: email, displayName: email, userId: pageState?.userId || '' };
+        saveSelectedUser(session);
+        resolve(session);
+        return;
+      }
+    } catch (e) {}
+
+    // 3. Try api.getSession() — throws in SSO/Keycloak environments
     try {
       api.getSession((result) => {
         const creds = result?.credentials || result || {};
@@ -50,7 +62,7 @@ export function getSession(api) {
         }
       }, () => resolve({ userName: '', displayName: '', userId: '' }));
     } catch (e) {
-      // SSO environment — caller will show user picker
+      // SSO environment — user picker will handle it
       resolve({ userName: '', displayName: '', userId: '' });
     }
   });

@@ -13,7 +13,7 @@ import ImportExport from './components/ImportExport/ImportExport';
 import UserPicker from './components/UserPicker/UserPicker';
 import './styles/app.css';
 
-export default function App({ api }) {
+export default function App({ api, state }) {
   // ── Data ──────────────────────────────────────────────────────────────
   const [devices, setDevices] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -40,7 +40,7 @@ export default function App({ api }) {
       Promise.all([
         fetchDevices(api).then(setDevices),
         fetchGroups(api).then(setGroups),
-        getSession(api).then(setSession),
+        getSession(api, state).then(setSession),
         loadAllDeviceData(api).then(setDeviceDataMap),
       ])
     );
