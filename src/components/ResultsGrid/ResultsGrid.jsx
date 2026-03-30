@@ -80,7 +80,7 @@ export default function ResultsGrid({
     const key = `${deviceId}__${auxKey}`;
     const val = dashReadings[key];
     if (!val || isNaN(Number(val))) return;
-    await saveBaseline(api, deviceId, auxKey, Number(val), 'Manual dash reading update (device offline)', session.userName, session.userId);
+    await saveBaseline(api, deviceId, auxKey, Number(val), 'Manual dash reading update (device offline)', session?.displayName || session?.userName || '', session?.userId || '');
     setDashReadings(prev => ({ ...prev, [key]: '' }));
     onDeviceDataChange();
   }

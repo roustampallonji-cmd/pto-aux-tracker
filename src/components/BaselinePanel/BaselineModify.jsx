@@ -13,8 +13,9 @@ export default function BaselineModify({ api, deviceId, auxKey, auxLabel, curren
     if (value === '' || isNaN(Number(value))) { setError('Enter a valid number.'); return; }
     setSaving(true);
     try {
-      await saveBaseline(api, deviceId, auxKey, Number(value), comment.trim(), session?.userName || '', session?.userId || '');
-      onSaved({ auxKey, value: Number(value), comment, user: session.userName });
+      const displayName = session?.displayName || session?.userName || '';
+      await saveBaseline(api, deviceId, auxKey, Number(value), comment.trim(), displayName, session?.userId || '');
+      onSaved({ auxKey, value: Number(value), comment, user: displayName });
     } catch (e) {
       const msg = e?.message || (typeof e === 'string' ? e : JSON.stringify(e));
       setError(`Save failed: ${msg}`);
@@ -49,7 +50,7 @@ export default function BaselineModify({ api, deviceId, auxKey, auxLabel, curren
       </div>
 
       <div className="baseline-panel-user">
-        Saved by: <strong>{session?.userName || '—'}</strong> (auto from session)
+        Saved by: <strong>{session?.displayName || session?.userName || '—'}</strong> (auto from session)
       </div>
 
       {error && <div style={{ color: '#dc2626', fontSize: 12 }}>{error}</div>}
