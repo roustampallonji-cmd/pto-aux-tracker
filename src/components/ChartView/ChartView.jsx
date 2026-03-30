@@ -21,9 +21,12 @@ function getAuxLabel(auxKey, deviceData, fallback) {
   return deviceData?.labels?.[auxKey] || fallback;
 }
 
+function truncate(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+
 function buildBarData(assetResults, activeAux, deviceDataMap, deviceMap) {
   return assetResults.map(r => {
-    const row = { name: deviceMap[r.deviceId]?.name || r.deviceId };
+    const fullName = deviceMap[r.deviceId]?.name || r.deviceId;
+    const row = { name: truncate(fullName, 14) };
     activeAux.forEach(auxKey => {
       const diag = AUX_DIAGNOSTICS.find(d => d.key === auxKey);
       const label = getAuxLabel(auxKey, deviceDataMap[r.deviceId], diag?.label || auxKey);
@@ -97,9 +100,9 @@ export default function ChartView({ assetResults, activeAux, deviceDataMap, devi
               <div className="text-muted">Select assets to view chart.</div>
             ) : chartType === 'bar' ? (
               <ResponsiveContainer width="100%" height={320}>
-                <BarChart data={barData} margin={{ top: 10, right: 20, left: 10, bottom: 60 }}>
+                <BarChart data={barData} margin={{ top: 10, right: 20, left: 10, bottom: barData.length === 1 ? 10 : 50 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-25} textAnchor="end" interval={0} />
+                  <XAxis dataKey="name" tick={barData.length === 1 ? false : { fontSize: 11 }} angle={-25} textAnchor="end" interval={0} />
                   <YAxis tick={{ fontSize: 11 }} unit=" h" />
                   <Tooltip
                     formatter={(val, name) => [`${val.toFixed(2)} h`, name]}
