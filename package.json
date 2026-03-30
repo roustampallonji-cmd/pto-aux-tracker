@@ -12,7 +12,7 @@
     "react-dom": "^18.2.0",
     "@geotab/zenith": "latest",
     "recharts": "^2.10.3",
-    "xlsx": "^0.18.5"
+    "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
     "vite": "^5.0.0",
