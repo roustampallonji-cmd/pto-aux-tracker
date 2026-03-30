@@ -57,7 +57,7 @@ export default function ImportExport({
         await saveDeviceLabels(api, row.deviceId, { [row.auxKey]: row.newLabel });
       }
       if (row.newHrs !== null) {
-        await saveBaseline(api, row.deviceId, row.auxKey, row.newHrs, row.comment, session.userName, session.userId);
+        await saveBaseline(api, row.deviceId, row.auxKey, row.newHrs, row.comment, session?.displayName || session?.userName || '', session?.userId || '');
       }
       applied++;
     }
@@ -85,7 +85,7 @@ export default function ImportExport({
         <SuccessModal
           title="Import Complete"
           lines={success.lines}
-          user={{ name: session?.userName }}
+          user={{ name: session?.displayName || session?.userName }}
           onClose={() => setSuccess(null)}
         />
       )}
