@@ -17,8 +17,15 @@ export function loadSelectedUser() {
 export function fetchUsers(api) {
   return new Promise((resolve) => {
     api.call('Get', { typeName: 'User', search: {} },
-      (users) => resolve((users || []).filter(u => u.userName).sort((a, b) => a.userName.localeCompare(b.userName))),
-      () => resolve([])
+      (users) => {
+        const filtered = (users || []).filter(u => u.userName);
+        console.log('[fetchUsers] raw:', users?.length, 'filtered:', filtered.length);
+        resolve(filtered.sort((a, b) => a.userName.localeCompare(b.userName)));
+      },
+      (err) => {
+        console.error('[fetchUsers] API error:', err);
+        resolve([]);
+      }
     );
   });
 }

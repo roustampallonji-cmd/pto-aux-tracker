@@ -11,12 +11,13 @@ export default function UserPicker({ api, session, onSessionChange }) {
     if (!session?.userName) setOpen(true);
   }, [session?.userName]);
 
-  // Load users when picker opens
+  // Load users on mount — don't wait for picker to open
   useEffect(() => {
-    if (open && users.length === 0) {
-      fetchUsers(api).then(setUsers);
-    }
-  }, [open]);
+    fetchUsers(api).then(list => {
+      console.log('[UserPicker] fetchUsers returned:', list.length, 'users');
+      setUsers(list);
+    });
+  }, []);
 
   function select(u) {
     const selected = { userName: u.userName, displayName: u.userName, userId: u.id || '' };
