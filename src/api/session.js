@@ -6,41 +6,47 @@ export function getSession(api) {
 
     try {
       api.getSession((result) => {
-        // Geotab passes either { credentials, server } or credentials directly
         const creds = result?.credentials || result || {};
         const email = creds.userName || creds.username || creds.name || '';
 
+        console.log('[session] raw:', JSON.stringify(result));
+        console.log('[session] email resolved:', email);
+
         const base = {
-          userName:  email,
-          displayName: email,   // fallback — overwritten below if Get<User> succeeds
-          userId:    creds.userId    || '',
-          sessionId: creds.sessionId || '',
-          database:  creds.database  || '',
+          userName:    email,
+          displayName: email,
+          userId:      creds.userId    || '',
+          sessionId:   creds.sessionId || '',
+          database:    creds.database  || '',
         };
 
-        if (!email) {
-          // No email — try Get<User> with no search (returns current user for non-admins)
-          api.call('Get', { typeName: 'User', search: {} }, (users) => {
-            const u = Array.isArray(users) && users.length === 1 ? users[0] : null;
-            resolve({
-              ...base,
-              userName:    u?.userName || '',
-              displayName: u?.name     || u?.userName || '',
-              userId:      u?.id       || '',
-            });
-          }, () => resolve(base));
-          return;
-        }
+        // Get<User> with no search — returns only the current user's own record
+        // for non-admin sessions; safest way to identify "me"
+        api.call('Get', { typeName: 'User', search: {} }, (users) => {
+          console.log('[session] Get<User> result:', JSON.stringify(users?.slice?.(0, 2)));
 
-        // We have the email — look up the User object to get the display name
-        api.call('Get', { typeName: 'User', search: { userName: email } }, (users) => {
-          const u = Array.isArray(users) ? users[0] : null;
+          // If only 1 user returned it's definitely "me"; otherwise match by email
+          let u = null;
+          if (Array.isArray(users)) {
+            if (users.length === 1) {
+              u = users[0];
+            } else if (email) {
+              u = users.find(x => x.userName === email || x.name === email) || null;
+            }
+          }
+
+          console.log('[session] matched user:', u?.name, u?.userName);
+
           resolve({
             ...base,
-            displayName: u?.name || email,
-            userId:      u?.id   || base.userId,
+            userName:    u?.userName || email,
+            displayName: u?.name     || u?.userName || email,
+            userId:      u?.id       || base.userId,
           });
-        }, () => resolve(base));
+        }, (err) => {
+          console.warn('[session] Get<User> failed:', err);
+          resolve(base);
+        });
 
       }, () => resolve(empty));
     } catch (e) {
