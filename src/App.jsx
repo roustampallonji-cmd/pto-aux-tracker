@@ -11,6 +11,7 @@ import ResultsGrid from './components/ResultsGrid/ResultsGrid';
 import ChartView from './components/ChartView/ChartView';
 import ImportExport from './components/ImportExport/ImportExport';
 import UserPicker from './components/UserPicker/UserPicker';
+import AuditLog from './components/AuditLog/AuditLog';
 import './styles/app.css';
 
 export default function App({ api, state }) {
@@ -33,6 +34,7 @@ export default function App({ api, state }) {
 
   // ── UI state ──────────────────────────────────────────────────────────
   const [chartVisible, setChartVisible] = useState(true);
+  const [auditVisible, setAuditVisible] = useState(true);
 
   // ── Init ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -169,6 +171,13 @@ export default function App({ api, state }) {
         dateRange={dateRange}
         visible={chartVisible}
         onToggle={() => setChartVisible(v => !v)}
+      />
+
+      <AuditLog
+        deviceDataMap={deviceDataMap}
+        deviceMap={deviceMap}
+        visible={auditVisible}
+        onToggle={() => setAuditVisible(v => !v)}
       />
     </div>
   );

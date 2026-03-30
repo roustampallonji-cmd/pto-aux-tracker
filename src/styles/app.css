@@ -483,6 +483,68 @@ body {
 .validation-ok { color: #16a34a; }
 .validation-warn { color: #d97706; }
 
+/* ── Audit Log ── */
+.audit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e3e8;
+}
+
+.audit-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.audit-filter-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #6b7280;
+}
+
+.audit-select-btn {
+  padding: 5px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 130px;
+  text-align: left;
+}
+.audit-select-btn:hover { background: #f0f4ff; border-color: #3b82f6; }
+
+.audit-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 300;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 240px;
+}
+
+.audit-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+}
+.audit-check-row:hover { background: #f0f4ff; }
+.audit-check-row:last-child { border-bottom: none; }
+
 /* ── Utility ── */
 .text-muted { color: #6b7280; font-size: 12px; }
 .flex-row { display: flex; gap: 8px; align-items: center; }
