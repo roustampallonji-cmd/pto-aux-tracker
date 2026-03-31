@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
-import { saveDeviceLabels } from '../../api/addinData';
+import { saveDeviceLabels } from '../../api/firebase';
 
 export default function AssetLabelPanel({ api, deviceId, deviceName, currentLabels, onSaved, onCancel }) {
   const [labels, setLabels] = useState({ ...currentLabels });

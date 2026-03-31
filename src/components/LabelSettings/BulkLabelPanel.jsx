@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
-import { bulkSaveLabels } from '../../api/addinData';
+import { bulkSaveLabels } from '../../api/firebase';
 import ConfirmModal from '../Modals/ConfirmModal';
 
 export default function BulkLabelPanel({ api, selectedDeviceIds, allDeviceIds, allDeviceData, deviceMap, session, onDone, onCancel }) {

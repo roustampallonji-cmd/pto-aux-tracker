@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
-import { saveBaseline } from '../../api/addinData';
+import { saveBaseline } from '../../api/firebase';
 
 export default function BaselineModify({ api, deviceId, auxKey, auxLabel, currentValue, session, onSaved, onCancel }) {
   const [value, setValue] = useState(currentValue || '');

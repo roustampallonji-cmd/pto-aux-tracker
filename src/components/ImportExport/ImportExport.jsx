@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
 import { exportToExcel } from '../../utils/exportExcel';
 import { generateTemplate, parseTemplate } from '../../utils/templateExcel';
-import { saveBaseline, saveDeviceLabels, loadAllDeviceData } from '../../api/addinData';
+import { saveBaseline, saveDeviceLabels, loadAllDeviceData } from '../../api/firebase';
 import ValidationModal from '../Modals/ValidationModal';
 import SuccessModal from '../Modals/SuccessModal';
 

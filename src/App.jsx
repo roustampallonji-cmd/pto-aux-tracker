@@ -3,7 +3,7 @@ import { AUX_DIAGNOSTICS, AUX_KEYS } from './api/diagnostics';
 import { fetchFleetAuxHours } from './api/statusData';
 import { fetchDeviceStatuses } from './api/deviceStatus';
 import { fetchDevices, fetchGroups } from './api/devices';
-import { initStorage, loadAllDeviceData, getActiveBaseline } from './api/addinData';
+import { initStorage, loadAllDeviceData, getActiveBaseline } from './api/firebase';
 import { getSession } from './api/session';
 import { getPresetRange } from './utils/formatters';
 import FilterPane from './components/FilterPane/FilterPane';
@@ -38,7 +38,7 @@ export default function App({ api, state }) {
 
   // ── Init ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    initStorage(api).then(() =>
+    initStorage(api, state).then(() =>
       Promise.all([
         fetchDevices(api).then(setDevices),
         fetchGroups(api).then(setGroups),

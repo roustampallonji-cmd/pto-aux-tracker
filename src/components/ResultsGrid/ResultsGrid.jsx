@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
 import { fmtHoursNum, fmtRelative, fmtSmartDateTime } from '../../utils/formatters';
-import { getActiveBaseline, getBaselineHistory, saveDeviceLabels } from '../../api/addinData';
+import { getActiveBaseline, getBaselineHistory, saveDeviceLabels } from '../../api/firebase';
 import BaselineModify from '../BaselinePanel/BaselineModify';
 import BaselineHistory from '../BaselinePanel/BaselineHistory';
 import BulkLabelPanel from '../LabelSettings/BulkLabelPanel';
 import ConfirmModal from '../Modals/ConfirmModal';
 import CorrectionConfirmModal from '../Modals/CorrectionConfirmModal';
-import { saveBaseline } from '../../api/addinData';
+import { saveBaseline } from '../../api/firebase';
 
 const SKIP_KEY = 'pto_aux_correction_skip_v1';
 function getSkipCount() { return parseInt(localStorage.getItem(SKIP_KEY) || '0', 10); }
