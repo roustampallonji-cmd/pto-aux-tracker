@@ -18,7 +18,9 @@ export function fetchDeviceStatuses(api, deviceIds) {
           isDeviceCommunicating: info.isDeviceCommunicating ?? false,
           lastCommunication: info.lastCommunication
             ? new Date(info.lastCommunication)
-            : null,
+            : info.dateTime
+              ? new Date(info.dateTime)
+              : null,
         };
       });
       resolve(map);
