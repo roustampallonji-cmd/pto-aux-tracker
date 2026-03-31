@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AUX_DIAGNOSTICS, AUX_KEYS } from './api/diagnostics';
 import { fetchFleetAuxHours } from './api/statusData';
-import { fetchDeviceStatuses } from './api/deviceStatus';
+import { fetchDeviceStatuses, fetchAddresses } from './api/deviceStatus';
 import { fetchDevices, fetchGroups } from './api/devices';
 import { initStorage, loadAllDeviceData, getActiveBaseline } from './api/firebase';
 import { getSession } from './api/session';
@@ -29,7 +29,8 @@ export default function App({ api, state }) {
 
   // ── Results state ─────────────────────────────────────────────────────
   const [auxHours, setAuxHours] = useState({});       // { deviceId: { AUX1: hrs, ... } }
-  const [commStatus, setCommStatus] = useState({});   // { deviceId: { isDeviceCommunicating, lastCommunication } }
+  const [commStatus, setCommStatus] = useState({});   // { deviceId: { isDeviceCommunicating, lastCommunication, latitude, longitude } }
+  const [addressMap, setAddressMap] = useState({});   // { deviceId: addressString }
   const [loading, setLoading] = useState(false);
 
   // ── UI state ──────────────────────────────────────────────────────────
@@ -66,6 +67,7 @@ export default function App({ api, state }) {
       setAuxHours(hours);
       setCommStatus(comm);
       setLoading(false);
+      fetchAddresses(api, selectedDeviceIds, comm).then(setAddressMap);
     }).catch(() => setLoading(false));
   }, [selectedDeviceIds, dateRange]);
 
@@ -87,11 +89,14 @@ export default function App({ api, state }) {
       hours: auxHours[id] || {},
       isDeviceCommunicating: commStatus[id]?.isDeviceCommunicating ?? null,
       lastCommunication: commStatus[id]?.lastCommunication ?? null,
+      latitude:  commStatus[id]?.latitude  ?? null,
+      longitude: commStatus[id]?.longitude ?? null,
+      address:   addressMap[id] || null,
       baselines: Object.fromEntries(
         AUX_KEYS.map(k => [k, getActiveBaseline(deviceDataMap[id], k)])
       ),
     })),
-    [selectedDeviceIds, auxHours, commStatus, deviceDataMap]
+    [selectedDeviceIds, auxHours, commStatus, addressMap, deviceDataMap]
   );
 
   // ── Apply status filter ───────────────────────────────────────────────

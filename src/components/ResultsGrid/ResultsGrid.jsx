@@ -389,6 +389,17 @@ export default function ResultsGrid({
                           {fmtRelative(r.lastCommunication)}
                         </div>
                       )}
+                      {r.address && r.latitude !== null && (
+                        <a
+                          href={`https://www.google.com/maps?q=${r.latitude},${r.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: 10, color: '#3b82f6', textDecoration: 'none', marginTop: 2, display: 'block', lineHeight: 1.3 }}
+                          title="Open in Google Maps"
+                        >
+                          📍 {r.address}
+                        </a>
+                      )}
 
                       {!isOnline && (
                         <div className="dash-reading">
