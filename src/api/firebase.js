@@ -79,6 +79,39 @@ export async function initStorage(api, state) {
     if (st?.database) databaseId = st.database;
   } catch {}
   console.log('[firebase] initialized, databaseId:', databaseId);
+  await migrateFromLocalStorage();
+}
+
+// ── One-time localStorage → Firestore migration ───────────────────────────
+
+const LS_PREFIX  = 'pto_aux_v1_';
+const MIGRATED_KEY = 'pto_aux_firebase_migrated_v1';
+
+async function migrateFromLocalStorage() {
+  if (localStorage.getItem(MIGRATED_KEY)) return; // already done
+  const migrations = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key?.startsWith(LS_PREFIX)) continue;
+    const deviceId = key.slice(LS_PREFIX.length);
+    try {
+      const data = JSON.parse(localStorage.getItem(key));
+      if (!data) continue;
+      migrations.push({ deviceId, labels: data.labels || {}, baselines: data.baselines || {} });
+    } catch {}
+  }
+  if (migrations.length) {
+    console.log('[firebase] migrating', migrations.length, 'device(s) from localStorage');
+    for (const { deviceId, labels, baselines } of migrations) {
+      const docPath = `device_data/${databaseId}__${deviceId}`;
+      const existing = await readDoc(docPath);
+      if (!existing) {
+        await writeDoc(docPath, { database_id: databaseId, deviceId, labels, baselines });
+        console.log('[firebase] migrated device', deviceId);
+      }
+    }
+  }
+  localStorage.setItem(MIGRATED_KEY, '1');
 }
 
 // ── Read ──────────────────────────────────────────────────────────────────
