@@ -43,9 +43,9 @@ export function fetchAddresses(api, deviceIds, statusMap) {
       x: statusMap[id].longitude,
       y: statusMap[id].latitude,
     }));
-    api.call('GetAddresses', { coordinates }, (addresses) => {
+    api.call('GetAddresses', { coordinates, movingAddresses: true }, (addresses) => {
       const map = {};
-      toGeocode.forEach((id, i) => { map[id] = addresses?.[i] || ''; });
+      toGeocode.forEach((id, i) => { map[id] = addresses?.[i]?.formattedAddress || ''; });
       resolve(map);
     }, () => resolve({}));
   });
