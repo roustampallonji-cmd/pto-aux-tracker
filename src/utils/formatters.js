@@ -26,6 +26,18 @@ export function fmtDateTime(date) {
   });
 }
 
+// Smart datetime: "Today, 2:34 PM" / "Yesterday, 11:22 AM" / "Mar 28, 11:22 AM"
+export function fmtSmartDateTime(date) {
+  if (!date) return '—';
+  const d = date instanceof Date ? date : new Date(date);
+  const now = new Date();
+  const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === now.toDateString()) return `Today, ${timeStr}`;
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+  if (d.toDateString() === yesterday.toDateString()) return `Yesterday, ${timeStr}`;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ', ' + timeStr;
+}
+
 // Format relative time e.g. "4 min ago", "2 days ago"
 export function fmtRelative(date) {
   if (!date) return '—';

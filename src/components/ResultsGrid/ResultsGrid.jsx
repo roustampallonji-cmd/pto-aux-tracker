@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, ButtonType } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
-import { fmtHoursNum, fmtRelative, fmtDateTime, fmtDate } from '../../utils/formatters';
+import { fmtHoursNum, fmtRelative, fmtSmartDateTime } from '../../utils/formatters';
 import { getActiveBaseline, getBaselineHistory, saveDeviceLabels } from '../../api/addinData';
 import BaselineModify from '../BaselinePanel/BaselineModify';
 import BaselineHistory from '../BaselinePanel/BaselineHistory';
@@ -382,8 +382,13 @@ export default function ResultsGrid({
                         <span>{isOnline ? 'Live' : 'Offline'}</span>
                       </div>
                       <div className="comm-last-seen">
-                        {r.lastCommunication ? (isOnline ? fmtRelative(r.lastCommunication) : `Last: ${fmtDate(r.lastCommunication)}`) : '—'}
+                        {r.lastCommunication ? fmtSmartDateTime(r.lastCommunication) : '—'}
                       </div>
+                      {!isOnline && r.lastCommunication && (
+                        <div style={{ fontSize: 10, color: '#9ca3af' }}>
+                          {fmtRelative(r.lastCommunication)}
+                        </div>
+                      )}
 
                       {!isOnline && (
                         <div className="dash-reading">
