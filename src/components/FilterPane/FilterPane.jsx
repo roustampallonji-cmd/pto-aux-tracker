@@ -115,10 +115,9 @@ export default function FilterPane({
               return (
                 <Checkbox
                   key={g.id}
-                  title={g.name}
                   checked={allSel}
                   onChange={() => toggleGroup(g.id)}
-                />
+                >{g.name}</Checkbox>
               );
             })}
             {filteredDevices.length > 0 && (
@@ -127,10 +126,9 @@ export default function FilterPane({
             {filteredDevices.map(d => (
               <Checkbox
                 key={d.id}
-                title={d.name}
                 checked={selectedDeviceIds.includes(d.id)}
                 onChange={() => toggleDevice(d.id)}
-              />
+              >{d.name}</Checkbox>
             ))}
           </div>
         </Card.Content>

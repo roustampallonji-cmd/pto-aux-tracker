@@ -60,6 +60,7 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 16px;
+  align-items: start;
 }
 
 /* Asset list scroll container inside the Assets card */
