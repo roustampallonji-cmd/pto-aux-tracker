@@ -10,7 +10,7 @@ import {
   GET_LAST_MONTH_OPTION,
   SearchInput,
   Checkbox,
-  Chip,
+  FiltersChip,
   GroupButton,
 } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
@@ -141,11 +141,16 @@ export default function FilterPane({
         <Card.Content>
           <div className="aux-chip-grid">
             {AUX_DIAGNOSTICS.map(({ key, label }) => (
-              <Chip
+              <FiltersChip
                 key={key}
-                title={label}
-                active={activeAux.includes(key)}
-                onChange={() => toggleAux(key)}
+                id={key}
+                name={label}
+                state={activeAux.includes(key)}
+                onChange={newState => {
+                  const next = new Set(activeAux);
+                  newState ? next.add(key) : next.delete(key);
+                  onAuxChange([...next]);
+                }}
                 style={{ opacity: activeAuxSet.has(key) ? 1 : 0.4 }}
               />
             ))}
