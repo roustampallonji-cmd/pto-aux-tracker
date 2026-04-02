@@ -70,13 +70,38 @@ function InlineDateRange({ value, onChange }) {
   const [fromTime,   setFromTime]   = useState('00:00');
   const [toTime,     setToTime]     = useState('23:59');
   const [calMonth,   setCalMonth]   = useState(() => new Date(value.from || new Date()));
+  const [pickStep,   setPickStep]   = useState(0); // 0 = picking start, 1 = picking end
+  const [hoverDate,  setHoverDate]  = useState(null);
 
   function selectPreset(key) {
     setSelected(key);
+    setPickStep(0);
+    setHoverDate(null);
     if (key !== 'custom') {
       const r = getPresetRange(key);
       onChange(r);
       setCalMonth(new Date(r.from));
+    }
+  }
+
+  function handleDayClick(date) {
+    setSelected('custom');
+    if (pickStep === 0) {
+      setCustomFrom(toLocalDateStr(date));
+      setCustomTo('');
+      setPickStep(1);
+    } else {
+      const from = buildLocalDate(customFrom || toLocalDateStr(date), fromTime);
+      if (date >= from) {
+        setCustomTo(toLocalDateStr(date));
+        setPickStep(0);
+        setHoverDate(null);
+      } else {
+        // Clicked before start — reset start
+        setCustomFrom(toLocalDateStr(date));
+        setCustomTo('');
+        setHoverDate(null);
+      }
     }
   }
 
@@ -89,6 +114,15 @@ function InlineDateRange({ value, onChange }) {
     }
     return getPresetRange(selected);
   }, [selected, customFrom, customTo, fromTime, toTime]);
+
+  // While picking end date, preview the hover range
+  const calRange = useMemo(() => {
+    if (pickStep === 1 && hoverDate && customFrom) {
+      const from = buildLocalDate(customFrom, fromTime);
+      return { from, to: hoverDate >= from ? hoverDate : from };
+    }
+    return displayRange;
+  }, [pickStep, hoverDate, customFrom, fromTime, displayRange]);
 
   const calDays = useMemo(() => buildCalDays(calMonth), [calMonth]);
 
@@ -169,11 +203,11 @@ function InlineDateRange({ value, onChange }) {
             <span key={i} className="idr-cal-dow">{d}</span>
           ))}
           {calDays.map(({ date, inMonth }, i) => {
-            const isStart = sameDay(date, displayRange.from);
-            const isEnd   = sameDay(date, displayRange.to);
+            const isStart = sameDay(date, calRange.from);
+            const isEnd   = sameDay(date, calRange.to);
             const single  = isStart && isEnd;
-            const inRange = displayRange.from && displayRange.to &&
-                            date > displayRange.from && date < displayRange.to;
+            const inRange = calRange.from && calRange.to &&
+                            date > calRange.from && date < calRange.to;
             const cls = [
               'idr-cal-day',
               !inMonth              ? 'idr-cal-day--out'    : '',
@@ -182,7 +216,17 @@ function InlineDateRange({ value, onChange }) {
               !single && isEnd      ? 'idr-cal-day--end'    : '',
               inRange               ? 'idr-cal-day--range'  : '',
             ].filter(Boolean).join(' ');
-            return <span key={i} className={cls}>{date.getDate()}</span>;
+            return (
+              <span
+                key={i}
+                className={cls}
+                onClick={() => handleDayClick(date)}
+                onMouseEnter={() => pickStep === 1 && setHoverDate(date)}
+                onMouseLeave={() => pickStep === 1 && setHoverDate(null)}
+              >
+                {date.getDate()}
+              </span>
+            );
           })}
         </div>
       </div>
@@ -192,6 +236,8 @@ function InlineDateRange({ value, onChange }) {
         <button className="idr-clear-btn" onClick={() => {
           const r = getPresetRange('thisMonth');
           setSelected('thisMonth');
+          setPickStep(0);
+          setHoverDate(null);
           onChange(r);
           setCalMonth(new Date(r.from));
         }}>Clear</button>

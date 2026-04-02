@@ -274,9 +274,10 @@ body {
   font-size: 11px;
   padding: 4px 2px;
   color: #374151 !important;
-  cursor: default;
+  cursor: pointer;
   border-radius: 50%;
 }
+.idr-cal-day:hover { background: #e0e7ff; border-radius: 50%; }
 .idr-cal-day--out    { color: #9ca3af !important; }
 .idr-cal-day--range  { background: #dbeafe; border-radius: 0; color: #1e40af !important; }
 .idr-cal-day--start  { background: #2563eb !important; border-radius: 50% 0 0 50%; color: #fff !important; }
