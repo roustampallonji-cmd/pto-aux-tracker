@@ -118,13 +118,13 @@ export default function App({ api, state }) {
 
   return (
     <div className="pto-root">
-      <div style={{ marginBottom: 12 }}>
-        <span className="zen-heading-4" style={{ color: '#1f4e79', fontWeight: 700, fontSize: 20 }}>
-          PTO AUX Hours Tracker
-        </span>
+      <div className="app-header">
+        <div>
+          <div className="app-header-title">PTO AUX Hours Tracker</div>
+          <div className="app-header-subtitle">Fleet auxiliary hours monitoring &amp; baseline management</div>
+        </div>
+        <UserPicker api={api} session={session} onSessionChange={setSession} dark />
       </div>
-
-      <UserPicker api={api} session={session} onSessionChange={setSession} />
 
       <FilterPane
         devices={devices}

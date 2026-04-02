@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUsers, saveSelectedUser } from '../../api/session';
 
-export default function UserPicker({ api, session, onSessionChange }) {
+export default function UserPicker({ api, session, onSessionChange, dark }) {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
@@ -37,12 +37,12 @@ export default function UserPicker({ api, session, onSessionChange }) {
     <div className="user-picker-bar">
       {session?.userName ? (
         <>
-          <span style={{ fontSize: 12, color: '#6b7280' }}>Saved by:</span>
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#1f4e79' }}>{session.userName}</span>
-          <button className="small-btn" onClick={() => setOpen(v => !v)}>Change</button>
+          <span style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.65)' : '#6b7280' }}>Saved by:</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: dark ? '#fff' : '#1f4e79' }}>{session.userName}</span>
+          <button className={dark ? 'small-btn--dark' : 'small-btn'} onClick={() => setOpen(v => !v)}>Change</button>
         </>
       ) : (
-        <span style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>⚠ Select your user to enable saving</span>
+        <span style={{ fontSize: 12, color: dark ? '#fca5a5' : '#dc2626', fontWeight: 600 }}>⚠ Select your user to enable saving</span>
       )}
 
       {open && (

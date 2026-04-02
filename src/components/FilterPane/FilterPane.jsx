@@ -75,6 +75,12 @@ export default function FilterPane({
     onAuxChange([...next]);
   }
 
+  const allDeviceIds = devices.map(d => d.id);
+  const allSelected = allDeviceIds.length > 0 && allDeviceIds.every(id => selectedDeviceIds.includes(id));
+
+  function selectAll() { onSelectionChange(allDeviceIds); }
+  function clearAll() { onSelectionChange([]); }
+
   return (
     <div className="filter-pallet">
       {/* Date Range */}
@@ -107,9 +113,17 @@ export default function FilterPane({
         </div>
       </div>
 
+      <hr className="filter-divider" />
+
       {/* Assets */}
       <div className="filter-section">
-        <div className="filter-label">Assets</div>
+        <div className="filter-label-row">
+          <div className="filter-label">Assets</div>
+          <div className="filter-quick-actions">
+            <button className="filter-link-btn" onClick={selectAll} disabled={allSelected}>All</button>
+            <button className="filter-link-btn" onClick={clearAll} disabled={selectedDeviceIds.length === 0}>Clear</button>
+          </div>
+        </div>
         <div className="asset-search">
           <input
             type="text"
