@@ -1,35 +1,211 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import {
-  Card,
-  DateRange,
-  GET_TODAY_OPTION,
-  GET_YESTERDAY_OPTION,
-  GET_THIS_WEEK_OPTION,
-  GET_LAST_WEEK_OPTION,
-  GET_THIS_MONTH_OPTION,
-  GET_LAST_MONTH_OPTION,
-  FiltersChip,
-  GroupButton,
-} from '@geotab/zenith';
+import { Card, FiltersChip, GroupButton } from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
 import { getPresetRange } from '../../utils/formatters';
 
-const DATE_OPTIONS = [
-  GET_TODAY_OPTION(),
-  GET_YESTERDAY_OPTION(),
-  GET_THIS_WEEK_OPTION(),
-  GET_LAST_WEEK_OPTION(),
-  GET_THIS_MONTH_OPTION(),
-  GET_LAST_MONTH_OPTION(),
+// ── Inline Date Range ──────────────────────────────────────────────────────────
+
+const IDR_PRESETS = [
+  { key: 'today',     label: 'Today' },
+  { key: 'yesterday', label: 'Yesterday' },
+  { key: 'thisWeek',  label: 'This week' },
+  { key: 'lastWeek',  label: 'Last week' },
+  { key: 'thisMonth', label: 'This month' },
+  { key: 'lastMonth', label: 'Last month' },
+  { key: 'custom',    label: 'Custom' },
 ];
 
-const STATUS_GROUP_DATA = [
-  { name: 'All', value: 'all' },
-  { name: 'Communicating', value: 'communicating' },
-  { name: 'Not Communicating', value: 'offline' },
-];
+const IDR_TIME_START = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, '0')}:00`);
+const IDR_TIME_END   = [...IDR_TIME_START, '23:59'];
 
-/** Inline dropdown — no portal, opens within the card */
+function toLocalDateStr(d) {
+  if (!d) return '';
+  const dt = d instanceof Date ? d : new Date(d);
+  return [
+    dt.getFullYear(),
+    String(dt.getMonth() + 1).padStart(2, '0'),
+    String(dt.getDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+function buildLocalDate(dateStr, timeStr) {
+  if (!dateStr) return null;
+  const [y, m, dd] = dateStr.split('-').map(Number);
+  const [h, min]   = timeStr.split(':').map(Number);
+  return new Date(y, m - 1, dd, h, min, 0, 0);
+}
+
+function presetSubLabel(key) {
+  if (key === 'today' || key === 'yesterday' || key === 'custom') return null;
+  const r = getPresetRange(key);
+  return `${toLocalDateStr(r.from)} - ${toLocalDateStr(r.to)}`;
+}
+
+function buildCalDays(ref) {
+  const year  = ref.getFullYear();
+  const month = ref.getMonth();
+  const first = new Date(year, month, 1);
+  const last  = new Date(year, month + 1, 0);
+  const startDow = (first.getDay() + 6) % 7; // Mon = 0
+  const days = [];
+  for (let i = 0; i < startDow; i++)
+    days.push({ date: new Date(year, month, 1 - startDow + i), inMonth: false });
+  for (let d = 1; d <= last.getDate(); d++)
+    days.push({ date: new Date(year, month, d), inMonth: true });
+  while (days.length % 7 !== 0) {
+    const prev = days[days.length - 1].date;
+    days.push({ date: new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 1), inMonth: false });
+  }
+  return days;
+}
+
+function sameDay(a, b) {
+  return a && b && a.toDateString() === b.toDateString();
+}
+
+function InlineDateRange({ value, onChange }) {
+  const [selected,   setSelected]   = useState('thisMonth');
+  const [customFrom, setCustomFrom] = useState(() => toLocalDateStr(value.from));
+  const [customTo,   setCustomTo]   = useState(() => toLocalDateStr(value.to));
+  const [fromTime,   setFromTime]   = useState('00:00');
+  const [toTime,     setToTime]     = useState('23:59');
+  const [calMonth,   setCalMonth]   = useState(() => new Date(value.from || new Date()));
+
+  function selectPreset(key) {
+    setSelected(key);
+    if (key !== 'custom') {
+      const r = getPresetRange(key);
+      onChange(r);
+      setCalMonth(new Date(r.from));
+    }
+  }
+
+  const displayRange = useMemo(() => {
+    if (selected === 'custom') {
+      return {
+        from: buildLocalDate(customFrom, fromTime),
+        to:   buildLocalDate(customTo, toTime),
+      };
+    }
+    return getPresetRange(selected);
+  }, [selected, customFrom, customTo, fromTime, toTime]);
+
+  const calDays = useMemo(() => buildCalDays(calMonth), [calMonth]);
+
+  const calLabel = calMonth.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+
+  function prevMonth() { setCalMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1)); }
+  function nextMonth() { setCalMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1)); }
+
+  return (
+    <div className="idr-root">
+
+      {/* Preset radio list */}
+      <div className="idr-presets">
+        {IDR_PRESETS.map(({ key, label }) => {
+          const sub = presetSubLabel(key);
+          return (
+            <label key={key} className={`idr-row${selected === key ? ' idr-row--active' : ''}`}>
+              <input
+                type="radio"
+                name="idr-preset"
+                checked={selected === key}
+                onChange={() => selectPreset(key)}
+                className="idr-radio"
+              />
+              <span className="idr-row-content">
+                <span className="idr-row-label">{label}</span>
+                {sub && <span className="idr-row-sub">{sub}</span>}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+
+      {/* Custom date + time inputs */}
+      {selected === 'custom' && (
+        <div className="idr-custom">
+          <div className="idr-field">
+            <span className="idr-field-label">Start date</span>
+            <div className="idr-field-row">
+              <input
+                type="date"
+                className="idr-date-input"
+                value={customFrom}
+                onChange={e => setCustomFrom(e.target.value)}
+              />
+              <select className="idr-time-sel" value={fromTime} onChange={e => setFromTime(e.target.value)}>
+                {IDR_TIME_START.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="idr-field">
+            <span className="idr-field-label">End date</span>
+            <div className="idr-field-row">
+              <input
+                type="date"
+                className="idr-date-input"
+                value={customTo}
+                onChange={e => setCustomTo(e.target.value)}
+              />
+              <select className="idr-time-sel" value={toTime} onChange={e => setToTime(e.target.value)}>
+                {IDR_TIME_END.map(t => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mini calendar */}
+      <div className="idr-cal">
+        <div className="idr-cal-hdr">
+          <button className="idr-cal-nav" onClick={prevMonth}>‹</button>
+          <span className="idr-cal-month">{calLabel}</span>
+          <button className="idr-cal-today-btn" onClick={() => setCalMonth(new Date())}>Today</button>
+          <button className="idr-cal-nav" onClick={nextMonth}>›</button>
+        </div>
+        <div className="idr-cal-grid">
+          {['M','T','W','T','F','S','S'].map((d, i) => (
+            <span key={i} className="idr-cal-dow">{d}</span>
+          ))}
+          {calDays.map(({ date, inMonth }, i) => {
+            const isStart = sameDay(date, displayRange.from);
+            const isEnd   = sameDay(date, displayRange.to);
+            const single  = isStart && isEnd;
+            const inRange = displayRange.from && displayRange.to &&
+                            date > displayRange.from && date < displayRange.to;
+            const cls = [
+              'idr-cal-day',
+              !inMonth              ? 'idr-cal-day--out'    : '',
+              single                ? 'idr-cal-day--single' : '',
+              !single && isStart    ? 'idr-cal-day--start'  : '',
+              !single && isEnd      ? 'idr-cal-day--end'    : '',
+              inRange               ? 'idr-cal-day--range'  : '',
+            ].filter(Boolean).join(' ');
+            return <span key={i} className={cls}>{date.getDate()}</span>;
+          })}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="idr-actions">
+        <button className="idr-clear-btn" onClick={() => {
+          const r = getPresetRange('thisMonth');
+          setSelected('thisMonth');
+          onChange(r);
+          setCalMonth(new Date(r.from));
+        }}>Clear</button>
+        {selected === 'custom' && (
+          <button className="idr-apply-btn" onClick={() => onChange(displayRange)}>Apply</button>
+        )}
+      </div>
+
+    </div>
+  );
+}
+
+// ── Asset Dropdown (inline, no portal) ────────────────────────────────────────
+
 function AssetDropdown({ label, items, selectedIds, onToggle, onSelectAll, onClearAll }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -96,6 +272,16 @@ function AssetDropdown({ label, items, selectedIds, onToggle, onSelectAll, onCle
   );
 }
 
+// ── Status group data ─────────────────────────────────────────────────────────
+
+const STATUS_GROUP_DATA = [
+  { name: 'All',               value: 'all' },
+  { name: 'Communicating',     value: 'communicating' },
+  { name: 'Not Communicating', value: 'offline' },
+];
+
+// ── FilterPane ────────────────────────────────────────────────────────────────
+
 export default function FilterPane({
   devices, groups,
   selectedDeviceIds, onSelectionChange,
@@ -104,12 +290,6 @@ export default function FilterPane({
   statusFilter, onStatusFilterChange,
   activeAuxSet,
 }) {
-  const initialDateValue = useMemo(() => ({
-    ...getPresetRange('thisMonth'),
-    label: 'This Month',
-  }), []);
-
-  // Which groups have all their devices selected
   const selectedGroupIds = useMemo(() =>
     groups
       .filter(g => {
@@ -140,14 +320,7 @@ export default function FilterPane({
       {/* Date Range */}
       <Card title="Date Range">
         <Card.Content>
-          <DateRange
-            options={DATE_OPTIONS}
-            defaultValue={initialDateValue}
-            value={{ from: dateRange.from, to: dateRange.to }}
-            onChange={({ from, to }) => onDateRangeChange({ from, to })}
-            withCalendar
-            timeSelect
-          />
+          <InlineDateRange value={dateRange} onChange={onDateRangeChange} />
         </Card.Content>
       </Card>
 

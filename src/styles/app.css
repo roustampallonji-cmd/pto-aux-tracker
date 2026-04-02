@@ -162,6 +162,154 @@ body {
 .adr-empty { padding: 10px 12px; font-size: 12px; color: #9ca3af !important; }
 
 
+/* ── Inline Date Range ── */
+.idr-root { font-size: 13px; }
+
+.idr-presets {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.idr-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f2f5;
+  border-left: 2px solid transparent;
+  transition: background 0.1s;
+}
+.idr-row:last-child { border-bottom: none; }
+.idr-row:hover { background: #f0f4ff; }
+.idr-row--active { border-left-color: #2563eb; background: #f0f4ff; }
+
+.idr-radio { cursor: pointer; accent-color: #2563eb; flex-shrink: 0; }
+
+.idr-row-content { display: flex; flex-direction: column; gap: 1px; }
+.idr-row-label { font-size: 13px; color: #374151 !important; font-weight: 500; }
+.idr-row-sub   { font-size: 11px; color: #6b7280 !important; }
+
+/* Custom date inputs */
+.idr-custom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.idr-field { display: flex; flex-direction: column; gap: 3px; }
+.idr-field-label { font-size: 11px; font-weight: 600; color: #374151 !important; }
+.idr-field-row { display: flex; gap: 6px; }
+
+.idr-date-input {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid #2563eb;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #374151 !important;
+  min-width: 0;
+}
+.idr-time-sel {
+  padding: 5px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #374151 !important;
+  min-width: 72px;
+}
+
+/* Mini calendar */
+.idr-cal { margin-bottom: 8px; }
+
+.idr-cal-hdr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.idr-cal-nav {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #374151 !important;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.idr-cal-nav:hover { background: #f0f2f5; }
+.idr-cal-month {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f4e79 !important;
+}
+.idr-cal-today-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #2563eb !important;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.idr-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+.idr-cal-dow {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7280 !important;
+  padding: 2px 0;
+}
+.idr-cal-day {
+  text-align: center;
+  font-size: 11px;
+  padding: 4px 2px;
+  color: #374151 !important;
+  cursor: default;
+  border-radius: 50%;
+}
+.idr-cal-day--out    { color: #9ca3af !important; }
+.idr-cal-day--range  { background: #dbeafe; border-radius: 0; color: #1e40af !important; }
+.idr-cal-day--start  { background: #2563eb !important; border-radius: 50% 0 0 50%; color: #fff !important; }
+.idr-cal-day--end    { background: #2563eb !important; border-radius: 0 50% 50% 0; color: #fff !important; }
+.idr-cal-day--single { background: #2563eb !important; border-radius: 50%; color: #fff !important; }
+
+/* Actions */
+.idr-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+}
+.idr-clear-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #2563eb !important;
+  cursor: pointer;
+  padding: 0;
+}
+.idr-apply-btn {
+  background: #2563eb;
+  color: #fff !important;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.idr-apply-btn:hover { background: #1d4ed8; }
+
 /* ── Import/Export bar ── */
 .ie-bar {
   display: flex;
