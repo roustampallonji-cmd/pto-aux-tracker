@@ -9,7 +9,6 @@ import {
   GET_THIS_MONTH_OPTION,
   GET_LAST_MONTH_OPTION,
   SearchInput,
-  Checkbox,
   FiltersChip,
   GroupButton,
 } from '@geotab/zenith';
@@ -113,22 +112,20 @@ export default function FilterPane({
               const allSel = groupDeviceIds.length > 0 &&
                 groupDeviceIds.every(id => selectedDeviceIds.includes(id));
               return (
-                <Checkbox
-                  key={g.id}
-                  checked={allSel}
-                  onChange={() => toggleGroup(g.id)}
-                >{g.name}</Checkbox>
+                <label key={g.id} className="asset-check-item">
+                  <input type="checkbox" checked={allSel} onChange={() => toggleGroup(g.id)} />
+                  <span>{g.name}</span>
+                </label>
               );
             })}
             {filteredDevices.length > 0 && (
               <div className="asset-section-label">Devices</div>
             )}
             {filteredDevices.map(d => (
-              <Checkbox
-                key={d.id}
-                checked={selectedDeviceIds.includes(d.id)}
-                onChange={() => toggleDevice(d.id)}
-              >{d.name}</Checkbox>
+              <label key={d.id} className="asset-check-item">
+                <input type="checkbox" checked={selectedDeviceIds.includes(d.id)} onChange={() => toggleDevice(d.id)} />
+                <span>{d.name}</span>
+              </label>
             ))}
           </div>
         </Card.Content>

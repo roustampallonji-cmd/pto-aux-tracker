@@ -82,6 +82,18 @@ body {
   padding: 6px 0 2px;
 }
 
+.asset-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.asset-check-item input[type="checkbox"] { cursor: pointer; flex-shrink: 0; }
+
 /* AUX chip 4×2 grid inside the AUX Columns card */
 .aux-chip-grid {
   display: grid;
