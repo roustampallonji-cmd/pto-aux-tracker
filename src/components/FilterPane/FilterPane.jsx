@@ -1,29 +1,35 @@
 import React, { useState, useMemo } from 'react';
+import {
+  Card,
+  DateRange,
+  GET_TODAY_OPTION,
+  GET_YESTERDAY_OPTION,
+  GET_THIS_WEEK_OPTION,
+  GET_LAST_WEEK_OPTION,
+  GET_THIS_MONTH_OPTION,
+  GET_LAST_MONTH_OPTION,
+  SearchInput,
+  Checkbox,
+  Chip,
+  GroupButton,
+} from '@geotab/zenith';
 import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
 import { getPresetRange } from '../../utils/formatters';
 
-const PRESETS = [
-  { key: 'today', label: 'Today' },
-  { key: 'yesterday', label: 'Yesterday' },
-  { key: 'thisWeek', label: 'This Week' },
-  { key: 'lastWeek', label: 'Last Week' },
-  { key: 'thisMonth', label: 'This Month' },
-  { key: 'lastMonth', label: 'Last Month' },
-  { key: 'custom', label: 'Custom' },
+const DATE_OPTIONS = [
+  GET_TODAY_OPTION(),
+  GET_YESTERDAY_OPTION(),
+  GET_THIS_WEEK_OPTION(),
+  GET_LAST_WEEK_OPTION(),
+  GET_THIS_MONTH_OPTION(),
+  GET_LAST_MONTH_OPTION(),
 ];
 
-const STATUS_OPTIONS = [
-  { key: 'all', label: 'All' },
-  { key: 'communicating', label: 'Communicating' },
-  { key: 'offline', label: 'Not Communicating' },
+const STATUS_GROUP_DATA = [
+  { name: 'All', value: 'all' },
+  { name: 'Communicating', value: 'communicating' },
+  { name: 'Not Communicating', value: 'offline' },
 ];
-
-function toDatetimeLocal(date) {
-  if (!date) return '';
-  const d = new Date(date);
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().slice(0, 16);
-}
 
 export default function FilterPane({
   devices, groups,
@@ -34,14 +40,11 @@ export default function FilterPane({
   activeAuxSet,
 }) {
   const [search, setSearch] = useState('');
-  const [activePreset, setActivePreset] = useState('thisMonth');
 
-  function applyPreset(key) {
-    setActivePreset(key);
-    if (key !== 'custom') {
-      onDateRangeChange(getPresetRange(key));
-    }
-  }
+  const initialDateValue = useMemo(() => ({
+    ...getPresetRange('thisMonth'),
+    label: 'This Month',
+  }), []);
 
   const filteredGroups = useMemo(() =>
     groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase())),
@@ -75,120 +78,92 @@ export default function FilterPane({
     onAuxChange([...next]);
   }
 
-  const allDeviceIds = devices.map(d => d.id);
-  const allSelected = allDeviceIds.length > 0 && allDeviceIds.every(id => selectedDeviceIds.includes(id));
-
-  function selectAll() { onSelectionChange(allDeviceIds); }
-  function clearAll() { onSelectionChange([]); }
-
   return (
-    <div className="filter-pallet">
+    <div className="filter-card-row">
       {/* Date Range */}
-      <div className="filter-section">
-        <div className="filter-label">Date Range</div>
-        <div className="preset-pills">
-          {PRESETS.map(p => (
-            <button
-              key={p.key}
-              className={`preset-btn ${activePreset === p.key ? 'active' : ''}`}
-              onClick={() => applyPreset(p.key)}
-            >{p.label}</button>
-          ))}
-        </div>
-        <div className="date-inputs">
-          <div className="date-input-row">
-            <span className="text-muted">From</span>
-            <input
-              type="datetime-local"
-              className="date-input"
-              value={toDatetimeLocal(dateRange.from)}
-              onChange={e => { setActivePreset('custom'); onDateRangeChange({ ...dateRange, from: new Date(e.target.value) }); }}
-            />
-          </div>
-          <div className="date-input-row">
-            <span className="text-muted">To</span>
-            <input
-              type="datetime-local"
-              className="date-input"
-              value={toDatetimeLocal(dateRange.to)}
-              onChange={e => { setActivePreset('custom'); onDateRangeChange({ ...dateRange, to: new Date(e.target.value) }); }}
-            />
-          </div>
-        </div>
-      </div>
+      <Card title="Date Range">
+        <Card.Content>
+          <DateRange
+            options={DATE_OPTIONS}
+            defaultValue={initialDateValue}
+            value={{ from: dateRange.from, to: dateRange.to }}
+            onChange={({ from, to }) => onDateRangeChange({ from, to })}
+            withCalendar
+            timeSelect
+          />
+        </Card.Content>
+      </Card>
 
       {/* Assets */}
-      <div className="filter-section">
-        <div className="filter-label-row">
-          <div className="filter-label">Assets</div>
-          <div className="filter-quick-actions">
-            <button className="filter-link-btn" onClick={selectAll} disabled={allSelected}>All</button>
-            <button className="filter-link-btn" onClick={clearAll} disabled={selectedDeviceIds.length === 0}>Clear</button>
-          </div>
-        </div>
-        <div className="asset-search">
-          <input
-            type="text"
-            placeholder="Search assets or groups..."
+      <Card title="Assets">
+        <Card.Content>
+          <SearchInput
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={val => setSearch(val)}
+            placeholder="Search assets or groups..."
           />
-        </div>
-        <div className="asset-lists">
-          <div className="asset-list-section">
-            <h4>Groups</h4>
+          <div className="asset-scroll-list">
+            {filteredGroups.length > 0 && (
+              <div className="asset-section-label">Groups</div>
+            )}
             {filteredGroups.map(g => {
-              const groupDeviceIds = devices.filter(d => d.groups?.some(x => x.id === g.id)).map(d => d.id);
-              const allSel = groupDeviceIds.length > 0 && groupDeviceIds.every(id => selectedDeviceIds.includes(id));
+              const groupDeviceIds = devices
+                .filter(d => d.groups?.some(x => x.id === g.id))
+                .map(d => d.id);
+              const allSel = groupDeviceIds.length > 0 &&
+                groupDeviceIds.every(id => selectedDeviceIds.includes(id));
               return (
-                <label key={g.id} className="asset-list-item">
-                  <input type="checkbox" checked={allSel} onChange={() => toggleGroup(g.id)} />
-                  {g.name}
-                </label>
+                <Checkbox
+                  key={g.id}
+                  title={g.name}
+                  checked={allSel}
+                  onChange={() => toggleGroup(g.id)}
+                />
               );
             })}
-          </div>
-          <div className="asset-list-section">
-            <h4>Devices</h4>
+            {filteredDevices.length > 0 && (
+              <div className="asset-section-label">Devices</div>
+            )}
             {filteredDevices.map(d => (
-              <label key={d.id} className="asset-list-item">
-                <input type="checkbox" checked={selectedDeviceIds.includes(d.id)} onChange={() => toggleDevice(d.id)} />
-                {d.name}
-              </label>
+              <Checkbox
+                key={d.id}
+                title={d.name}
+                checked={selectedDeviceIds.includes(d.id)}
+                onChange={() => toggleDevice(d.id)}
+              />
             ))}
           </div>
-        </div>
-      </div>
+        </Card.Content>
+      </Card>
 
       {/* AUX Columns */}
-      <div className="filter-section">
-        <div className="filter-label">AUX Columns</div>
-        <div className="aux-pills">
-          {AUX_DIAGNOSTICS.map(({ key, label }) => (
-            <button
-              key={key}
-              className={`aux-pill ${activeAux.includes(key) ? 'active' : ''}`}
-              onClick={() => toggleAux(key)}
-              title={activeAuxSet.has(key) ? 'Has data' : 'No data in selected range'}
-              style={{ opacity: activeAuxSet.has(key) ? 1 : 0.5 }}
-            >{label}</button>
-          ))}
-        </div>
-      </div>
+      <Card title="AUX Columns">
+        <Card.Content>
+          <div className="aux-chip-grid">
+            {AUX_DIAGNOSTICS.map(({ key, label }) => (
+              <Chip
+                key={key}
+                title={label}
+                active={activeAux.includes(key)}
+                onChange={() => toggleAux(key)}
+                style={{ opacity: activeAuxSet.has(key) ? 1 : 0.4 }}
+              />
+            ))}
+          </div>
+        </Card.Content>
+      </Card>
 
-      {/* Status Filter */}
-      <div className="filter-section">
-        <div className="filter-label">Status Filter</div>
-        <div className="status-filter">
-          {STATUS_OPTIONS.map(s => (
-            <button
-              key={s.key}
-              className={`status-btn ${statusFilter === s.key ? 'active' : ''}`}
-              onClick={() => onStatusFilterChange(s.key)}
-            >{s.label}</button>
-          ))}
-        </div>
-      </div>
+      {/* Status */}
+      <Card title="Status">
+        <Card.Content>
+          <GroupButton
+            groupData={STATUS_GROUP_DATA}
+            value={statusFilter}
+            onChange={e => onStatusFilterChange(e.target.value)}
+            fullWidth
+          />
+        </Card.Content>
+      </Card>
     </div>
   );
 }

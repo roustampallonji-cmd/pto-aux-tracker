@@ -54,170 +54,40 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ── Filter pallet — 4-card row layout ── */
-.filter-pallet {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  margin-bottom: 16px;
+/* ── Filter card row — 4 equal Zenith Cards ── */
+.filter-card-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  box-shadow: none;
+  margin-bottom: 16px;
 }
 
-.filter-divider { display: none; }
-
-.filter-section {
-  background: #fff;
-  border: 1px solid #e0e3e8;
-  border-radius: 10px;
-  padding: 14px 16px;
+/* Asset list scroll container inside the Assets card */
+.asset-scroll-list {
+  max-height: 180px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  gap: 2px;
+  margin-top: 8px;
 }
 
-.filter-label {
-  font-size: 11px;
+.asset-section-label {
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #6b7280;
+  color: #9ca3af;
+  padding: 6px 0 2px;
 }
 
-.filter-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.filter-quick-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.filter-link-btn {
-  background: none;
-  border: none;
-  font-size: 11px;
-  color: #3b82f6;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.filter-link-btn:hover { color: #1d4ed8; }
-
-.preset-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.preset-btn {
-  padding: 4px 12px;
-  border-radius: 14px;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.preset-btn:hover { background: #f0f4ff; border-color: #3b82f6; }
-.preset-btn.active { background: #1f4e79; color: #fff; border-color: #1f4e79; }
-
-.date-inputs { display: flex; flex-direction: column; gap: 6px; }
-
-.date-input-row { display: flex; align-items: center; gap: 8px; }
-
-.date-input {
-  padding: 6px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 12px;
-  flex: 1;
-  min-width: 0;
-}
-
-.asset-search {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.asset-search input {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.asset-lists {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  max-height: 160px;
-  overflow-y: auto;
-}
-
-.asset-list-section h4 {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  margin: 0 0 4px;
-  text-transform: uppercase;
-}
-
-.asset-list-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 0;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.aux-pills {
+/* AUX chip 4×2 grid inside the AUX Columns card */
+.aux-chip-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 5px;
+  gap: 6px;
 }
 
-.aux-pill {
-  padding: 5px 0;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.15s;
-  background: #fff;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.aux-pill.active { background: #e8f0fe; border-color: #1f4e79; color: #1f4e79; font-weight: 600; }
-
-.status-filter { display: flex; flex-direction: column; gap: 7px; }
-
-.status-btn {
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: left;
-}
-
-.status-btn:hover { background: #f0f4ff; border-color: #93c5fd; }
-.status-btn.active { background: #1f4e79; color: #fff; border-color: #1f4e79; }
 
 /* ── Import/Export bar ── */
 .ie-bar {
