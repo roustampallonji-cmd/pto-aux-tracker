@@ -63,36 +63,6 @@ body {
   align-items: start;
 }
 
-/* Asset list scroll container inside the Assets card */
-.asset-scroll-list {
-  max-height: 180px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: 8px;
-}
-
-.asset-section-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #9ca3af;
-  padding: 6px 0 2px;
-}
-
-.asset-check-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 0;
-  font-size: 13px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.asset-check-item input[type="checkbox"] { cursor: pointer; flex-shrink: 0; }
 
 /* AUX chip 4×2 grid inside the AUX Columns card */
 .aux-chip-grid {

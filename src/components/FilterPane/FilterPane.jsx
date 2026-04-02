@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Card,
   DateRange,
@@ -8,7 +8,7 @@ import {
   GET_LAST_WEEK_OPTION,
   GET_THIS_MONTH_OPTION,
   GET_LAST_MONTH_OPTION,
-  SearchInput,
+  Dropdown,
   FiltersChip,
   GroupButton,
 } from '@geotab/zenith';
@@ -38,47 +38,47 @@ export default function FilterPane({
   statusFilter, onStatusFilterChange,
   activeAuxSet,
 }) {
-  const [search, setSearch] = useState('');
-
   const initialDateValue = useMemo(() => ({
     ...getPresetRange('thisMonth'),
     label: 'This Month',
   }), []);
 
-  const filteredGroups = useMemo(() =>
-    groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase())),
-    [groups, search]
+  // Compute which groups are fully selected
+  const selectedGroupIds = useMemo(() =>
+    groups
+      .filter(g => {
+        const ids = devices
+          .filter(d => d.groups?.some(x => x.id === g.id))
+          .map(d => d.id);
+        return ids.length > 0 && ids.every(id => selectedDeviceIds.includes(id));
+      })
+      .map(g => g.id),
+    [groups, devices, selectedDeviceIds]
   );
 
-  const filteredDevices = useMemo(() =>
-    devices.filter(d => d.name.toLowerCase().includes(search.toLowerCase())),
-    [devices, search]
-  );
-
-  function toggleDevice(id) {
+  function handleGroupChange(selected) {
+    const newGroupIds = selected.map(s => s.id);
     const next = new Set(selectedDeviceIds);
-    next.has(id) ? next.delete(id) : next.add(id);
+    groups.forEach(g => {
+      const ids = devices
+        .filter(d => d.groups?.some(x => x.id === g.id))
+        .map(d => d.id);
+      if (newGroupIds.includes(g.id)) {
+        ids.forEach(id => next.add(id));
+      } else if (selectedGroupIds.includes(g.id)) {
+        ids.forEach(id => next.delete(id));
+      }
+    });
     onSelectionChange([...next]);
   }
 
-  function toggleGroup(groupId) {
-    const groupDeviceIds = devices
-      .filter(d => d.groups?.some(g => g.id === groupId))
-      .map(d => d.id);
-    const allSelected = groupDeviceIds.every(id => selectedDeviceIds.includes(id));
-    const next = new Set(selectedDeviceIds);
-    groupDeviceIds.forEach(id => allSelected ? next.delete(id) : next.add(id));
-    onSelectionChange([...next]);
-  }
-
-  function toggleAux(key) {
-    const next = new Set(activeAux);
-    next.has(key) ? next.delete(key) : next.add(key);
-    onAuxChange([...next]);
+  function handleDeviceChange(selected) {
+    onSelectionChange(selected.map(s => s.id));
   }
 
   return (
     <div className="filter-card-row">
+
       {/* Date Range */}
       <Card title="Date Range">
         <Card.Content>
@@ -93,40 +93,32 @@ export default function FilterPane({
         </Card.Content>
       </Card>
 
-      {/* Assets */}
+      {/* Assets — Groups + Devices as separate Zenith Dropdowns */}
       <Card title="Assets">
         <Card.Content>
-          <SearchInput
-            value={search}
-            onChange={val => setSearch(val)}
-            placeholder="Search assets or groups..."
+          <Dropdown
+            label="Groups"
+            dataItems={groups.map(g => ({ id: g.id, name: g.name }))}
+            value={selectedGroupIds}
+            onChange={handleGroupChange}
+            multiselect
+            searchField
+            fullWidthTriggerButton
+            showCounterPill
+            errorHandler={() => {}}
           />
-          <div className="asset-scroll-list">
-            {filteredGroups.length > 0 && (
-              <div className="asset-section-label">Groups</div>
-            )}
-            {filteredGroups.map(g => {
-              const groupDeviceIds = devices
-                .filter(d => d.groups?.some(x => x.id === g.id))
-                .map(d => d.id);
-              const allSel = groupDeviceIds.length > 0 &&
-                groupDeviceIds.every(id => selectedDeviceIds.includes(id));
-              return (
-                <label key={g.id} className="asset-check-item">
-                  <input type="checkbox" checked={allSel} onChange={() => toggleGroup(g.id)} />
-                  <span>{g.name}</span>
-                </label>
-              );
-            })}
-            {filteredDevices.length > 0 && (
-              <div className="asset-section-label">Devices</div>
-            )}
-            {filteredDevices.map(d => (
-              <label key={d.id} className="asset-check-item">
-                <input type="checkbox" checked={selectedDeviceIds.includes(d.id)} onChange={() => toggleDevice(d.id)} />
-                <span>{d.name}</span>
-              </label>
-            ))}
+          <div style={{ marginTop: 10 }}>
+            <Dropdown
+              label="Devices"
+              dataItems={devices.map(d => ({ id: d.id, name: d.name }))}
+              value={selectedDeviceIds}
+              onChange={handleDeviceChange}
+              multiselect
+              searchField
+              fullWidthTriggerButton
+              showCounterPill
+              errorHandler={() => {}}
+            />
           </div>
         </Card.Content>
       </Card>
@@ -164,6 +156,7 @@ export default function FilterPane({
           />
         </Card.Content>
       </Card>
+
     </div>
   );
 }
