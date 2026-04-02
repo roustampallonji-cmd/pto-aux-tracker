@@ -54,30 +54,30 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ── Filter pallet ── */
+/* ── Filter pallet — 4-card row layout ── */
 .filter-pallet {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  box-shadow: none;
+}
+
+.filter-divider { display: none; }
+
+.filter-section {
   background: #fff;
   border: 1px solid #e0e3e8;
   border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-
-.filter-divider {
-  grid-column: 1 / -1;
-  border: none;
-  border-top: 1px solid #e8eaed;
-  margin: 0;
-}
-
-.filter-section {
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
 .filter-label {
@@ -131,14 +131,17 @@ body {
 .preset-btn:hover { background: #f0f4ff; border-color: #3b82f6; }
 .preset-btn.active { background: #1f4e79; color: #fff; border-color: #1f4e79; }
 
-.date-inputs { display: flex; gap: 8px; align-items: center; }
+.date-inputs { display: flex; flex-direction: column; gap: 6px; }
+
+.date-input-row { display: flex; align-items: center; gap: 8px; }
 
 .date-input {
-  padding: 6px 10px;
+  padding: 6px 8px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 12px;
-  width: 180px;
+  flex: 1;
+  min-width: 0;
 }
 
 .asset-search {
@@ -181,42 +184,39 @@ body {
 }
 
 .aux-pills {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 5px;
-  overflow-x: auto;
-  padding-bottom: 2px;
 }
 
-.aux-pills::-webkit-scrollbar { height: 3px; }
-.aux-pills::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-
 .aux-pill {
-  padding: 3px 10px;
-  border-radius: 12px;
+  padding: 5px 0;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   font-size: 11px;
   cursor: pointer;
   transition: all 0.15s;
   background: #fff;
+  text-align: center;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .aux-pill.active { background: #e8f0fe; border-color: #1f4e79; color: #1f4e79; font-weight: 600; }
 
-.status-filter { display: flex; gap: 8px; }
+.status-filter { display: flex; flex-direction: column; gap: 7px; }
 
 .status-btn {
-  padding: 5px 14px;
-  border-radius: 14px;
+  padding: 7px 14px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   background: #fff;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
+  text-align: left;
 }
 
+.status-btn:hover { background: #f0f4ff; border-color: #93c5fd; }
 .status-btn.active { background: #1f4e79; color: #fff; border-color: #1f4e79; }
 
 /* ── Import/Export bar ── */

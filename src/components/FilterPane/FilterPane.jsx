@@ -84,7 +84,7 @@ export default function FilterPane({
   return (
     <div className="filter-pallet">
       {/* Date Range */}
-      <div className="filter-section" style={{ gridColumn: '1 / -1' }}>
+      <div className="filter-section">
         <div className="filter-label">Date Range</div>
         <div className="preset-pills">
           {PRESETS.map(p => (
@@ -96,24 +96,26 @@ export default function FilterPane({
           ))}
         </div>
         <div className="date-inputs">
-          <span className="text-muted">From</span>
-          <input
-            type="datetime-local"
-            className="date-input"
-            value={toDatetimeLocal(dateRange.from)}
-            onChange={e => { setActivePreset('custom'); onDateRangeChange({ ...dateRange, from: new Date(e.target.value) }); }}
-          />
-          <span className="text-muted">To</span>
-          <input
-            type="datetime-local"
-            className="date-input"
-            value={toDatetimeLocal(dateRange.to)}
-            onChange={e => { setActivePreset('custom'); onDateRangeChange({ ...dateRange, to: new Date(e.target.value) }); }}
-          />
+          <div className="date-input-row">
+            <span className="text-muted">From</span>
+            <input
+              type="datetime-local"
+              className="date-input"
+              value={toDatetimeLocal(dateRange.from)}
+              onChange={e => { setActivePreset('custom'); onDateRangeChange({ ...dateRange, from: new Date(e.target.value) }); }}
+            />
+          </div>
+          <div className="date-input-row">
+            <span className="text-muted">To</span>
+            <input
+              type="datetime-local"
+              className="date-input"
+              value={toDatetimeLocal(dateRange.to)}
+              onChange={e => { setActivePreset('custom'); onDateRangeChange({ ...dateRange, to: new Date(e.target.value) }); }}
+            />
+          </div>
         </div>
       </div>
-
-      <hr className="filter-divider" />
 
       {/* Assets */}
       <div className="filter-section">
@@ -158,26 +160,25 @@ export default function FilterPane({
         </div>
       </div>
 
-      {/* AUX Channels + Status */}
+      {/* AUX Columns */}
       <div className="filter-section">
-        <div className="filter-label">Show / Hide AUX Columns</div>
+        <div className="filter-label">AUX Columns</div>
         <div className="aux-pills">
-          {AUX_DIAGNOSTICS.map(({ key, label }) => {
-            const hasData = activeAuxSet.has(key);
-            const customLabel = label;
-            return (
-              <button
-                key={key}
-                className={`aux-pill ${activeAux.includes(key) ? 'active' : ''}`}
-                onClick={() => toggleAux(key)}
-                title={hasData ? 'Has data' : 'No data in selected range'}
-                style={{ opacity: hasData ? 1 : 0.5 }}
-              >{customLabel}</button>
-            );
-          })}
+          {AUX_DIAGNOSTICS.map(({ key, label }) => (
+            <button
+              key={key}
+              className={`aux-pill ${activeAux.includes(key) ? 'active' : ''}`}
+              onClick={() => toggleAux(key)}
+              title={activeAuxSet.has(key) ? 'Has data' : 'No data in selected range'}
+              style={{ opacity: activeAuxSet.has(key) ? 1 : 0.5 }}
+            >{label}</button>
+          ))}
         </div>
+      </div>
 
-        <div className="filter-label" style={{ marginTop: 12 }}>Status Filter</div>
+      {/* Status Filter */}
+      <div className="filter-section">
+        <div className="filter-label">Status Filter</div>
         <div className="status-filter">
           {STATUS_OPTIONS.map(s => (
             <button
