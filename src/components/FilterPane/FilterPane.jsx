@@ -410,9 +410,10 @@ export default function FilterPane({
         </Card.Content>
       </Card>
 
-      {/* AUX Columns */}
-      <Card title="AUX Columns">
-        <Card.Content>
+      {/* AUX Columns — custom card to avoid Zenith overflow clipping */}
+      <div className="aux-card">
+        <div className="aux-card-title">AUX Columns</div>
+        <div className="aux-card-content">
           <div className="aux-chip-grid">
             {AUX_DIAGNOSTICS.map(({ key, label }) => (
               <FiltersChip
@@ -451,8 +452,8 @@ export default function FilterPane({
               </div>
             </div>
           </div>
-        </Card.Content>
-      </Card>
+        </div>
+      </div>
 
       {/* Status */}
       <Card title="Status">
