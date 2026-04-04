@@ -126,6 +126,16 @@ export default function App({ api, state }) {
         <UserPicker api={api} session={session} onSessionChange={setSession} dark />
       </div>
 
+      <div className="setup-steps">
+        <span className="setup-step"><span className="setup-step-num">1</span> Choose a date range</span>
+        <span className="setup-divider">›</span>
+        <span className="setup-step"><span className="setup-step-num">2</span> Select your groups or assets</span>
+        <span className="setup-divider">›</span>
+        <span className="setup-step"><span className="setup-step-num">3</span> Select which AUX columns to show</span>
+        <span className="setup-divider">›</span>
+        <span className="setup-step"><span className="setup-step-num">4</span> Filter by communication status</span>
+      </div>
+
       <FilterPane
         devices={devices}
         groups={groups}
