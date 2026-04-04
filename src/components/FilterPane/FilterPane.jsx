@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Card, FiltersChip, GroupButton } from '@geotab/zenith';
-import { AUX_DIAGNOSTICS } from '../../api/diagnostics';
+import { AUX_DIAGNOSTICS, AUX_KEYS } from '../../api/diagnostics';
 import { getPresetRange } from '../../utils/formatters';
 
 // ── Inline Date Range ──────────────────────────────────────────────────────────
