@@ -387,8 +387,9 @@ export default function FilterPane({
       </Card>
 
       {/* Assets */}
-      <Card title="Assets">
-        <Card.Content>
+      <div className="aux-card">
+        <div className="aux-card-title">Assets</div>
+        <div className="aux-card-content">
           <AssetDropdown
             label="Groups"
             items={groups.map(g => ({ id: g.id, name: g.name }))}
@@ -407,8 +408,16 @@ export default function FilterPane({
               onClearAll={() => onSelectionChange([])}
             />
           </div>
-        </Card.Content>
-      </Card>
+          <div className="aux-legend">
+            <div className="aux-legend-title">How to use</div>
+            <ul className="aux-legend-list">
+              <li><strong>Groups</strong> — Select all devices within a group at once. Checking a group automatically includes every asset assigned to it.</li>
+              <li><strong>Devices</strong> — Pick individual assets by name. Use the search box to quickly find a specific vehicle.</li>
+              <li>You can combine both — select a group then add or remove individual devices as needed.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
       {/* AUX Columns — custom card to avoid Zenith overflow clipping */}
       <div className="aux-card">
@@ -466,16 +475,25 @@ export default function FilterPane({
       </div>
 
       {/* Status */}
-      <Card title="Status">
-        <Card.Content>
+      <div className="aux-card">
+        <div className="aux-card-title">Status</div>
+        <div className="aux-card-content">
           <GroupButton
             groupData={STATUS_GROUP_DATA}
             value={statusFilter}
             onChange={e => onStatusFilterChange(e.target.value)}
             fullWidth
           />
-        </Card.Content>
-      </Card>
+          <div className="aux-legend">
+            <div className="aux-legend-title">How to use</div>
+            <ul className="aux-legend-list">
+              <li><strong>All</strong> — Show every selected asset regardless of whether it is currently reporting.</li>
+              <li><strong>Communicating</strong> — Only show assets that have recently been in contact with the server.</li>
+              <li><strong>Not Communicating</strong> — Only show assets that have gone offline or stopped reporting. Useful for identifying devices that may need attention.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
     </div>
   );
