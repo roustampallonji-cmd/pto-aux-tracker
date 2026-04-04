@@ -12,6 +12,7 @@ import ChartView from './components/ChartView/ChartView';
 import ImportExport from './components/ImportExport/ImportExport';
 import UserPicker from './components/UserPicker/UserPicker';
 import AuditLog from './components/AuditLog/AuditLog';
+import FleetConsole from './components/FleetConsole/FleetConsole';
 import './styles/app.css';
 
 export default function App({ api, state }) {
@@ -166,7 +167,17 @@ export default function App({ api, state }) {
         dateRange={dateRange}
         selectedDeviceIds={selectedDeviceIds}
         allDeviceIds={allDeviceIds}
+        activeAux={activeAux}
         onImportComplete={reloadDeviceData}
+      />
+
+      <FleetConsole
+        assetResults={assetResults}
+        dateRange={dateRange}
+        activeAux={activeAux}
+        statusFilter={statusFilter}
+        deviceMap={deviceMap}
+        loading={loading}
       />
 
       <ResultsGrid
