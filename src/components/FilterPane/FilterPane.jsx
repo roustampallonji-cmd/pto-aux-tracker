@@ -452,6 +452,16 @@ export default function FilterPane({
               </div>
             </div>
           </div>
+
+          <div className="aux-legend">
+            <div className="aux-legend-title">How to use</div>
+            <ul className="aux-legend-list">
+              <li><strong>AUX 1–8</strong> — Toggle individual columns on or off in the results grid. Dimmed pills have no data in the selected date range.</li>
+              <li><strong>Select All / Deselect All</strong> — Turn all 8 columns on or off at once.</li>
+              <li><strong>🔒 Lock View</strong> — Saves your current AUX selection. Every time you load this page, it will restore to exactly these columns automatically. Pill turns green when active.</li>
+              <li><strong>↺ Reset</strong> — Clears the saved lock and deselects all columns.</li>
+            </ul>
+          </div>
         </div>
       </div>
 

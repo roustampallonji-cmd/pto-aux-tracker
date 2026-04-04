@@ -198,6 +198,36 @@ body {
   border-color: #15803d;
 }
 
+/* ── AUX legend ── */
+.aux-legend {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.aux-legend-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 7px;
+}
+
+.aux-legend-list {
+  margin: 0;
+  padding-left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.aux-legend-list li {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
 /* ── Inline asset dropdown (no portal) ── */
 .adr-wrap { position: relative; }
 
