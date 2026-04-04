@@ -20,7 +20,7 @@ export default function ResultsGrid({
   activeAux, selectedDeviceIds, allDeviceIds,
   loading, onDeviceDataChange,
 }) {
-  const [expandedAux, setExpandedAux] = useState(new Set(AUX_DIAGNOSTICS.map(d => d.key)));
+  const [expandedAux, setExpandedAux] = useState(new Set());
   const [modifyingCell, setModifyingCell] = useState(null);   // { deviceId, auxKey }
   const [historyCell, setHistoryCell] = useState(null);        // { deviceId, auxKey }
   const [bulkPanel, setBulkPanel] = useState(false);
