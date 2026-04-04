@@ -90,33 +90,60 @@ export default function ImportExport({
         />
       )}
 
-      <div className="ie-bar">
-        <div className="ie-group">
-          <span className="ie-group-label">Export</span>
-          <Button type={ButtonType.Secondary} onClick={handleExportView}>↓ Current View</Button>
-          <Button type={ButtonType.Secondary} onClick={handleExportAll}>↓ All Assets</Button>
+      <div className="actions-panel">
+        <div className="actions-panel-header">Data &amp; Actions</div>
+        <div className="actions-cards">
+
+          <div className="action-card">
+            <div className="action-card-icon">↓</div>
+            <div className="action-card-title">Export: Current View</div>
+            <div className="action-card-desc">Downloads an Excel file of assets currently visible in the grid — filtered by your date range, AUX columns, and communication status.</div>
+            <Button type={ButtonType.Secondary} onClick={handleExportView}>↓ Export</Button>
+          </div>
+
+          <div className="action-card">
+            <div className="action-card-icon">↓</div>
+            <div className="action-card-title">Export: All Assets</div>
+            <div className="action-card-desc">Downloads an Excel file for all selected assets, regardless of the communication status filter applied to the grid.</div>
+            <Button type={ButtonType.Secondary} onClick={handleExportAll}>↓ Export</Button>
+          </div>
+
+          <div className="action-card">
+            <div className="action-card-icon">↓</div>
+            <div className="action-card-title">Generate Template</div>
+            <div className="action-card-desc">Creates a blank Excel template pre-filled with your asset list and AUX columns. Fill in baseline hours and labels, then upload to apply in bulk.</div>
+            <select
+              value={templateMode}
+              onChange={e => setTemplateMode(e.target.value)}
+              className="action-card-select"
+            >
+              <option value="selected">Selected ({selectedDeviceIds.length} assets)</option>
+              <option value="all">Entire Fleet ({allDeviceIds.length} assets)</option>
+            </select>
+            <Button type={ButtonType.Secondary} onClick={handleGenerateTemplate}>↓ Generate</Button>
+          </div>
+
+          <div className="action-card">
+            <div className="action-card-icon">↑</div>
+            <div className="action-card-title">Upload Template</div>
+            <div className="action-card-desc">Import a completed template to apply labels and baseline hours to multiple assets at once. Validates each row before saving.</div>
+            <Button type={ButtonType.Secondary} onClick={() => fileRef.current.click()}>↑ Upload</Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx"
+              style={{ display: 'none' }}
+              onChange={handleFileUpload}
+            />
+          </div>
+
         </div>
 
-        <div className="ie-group">
-          <span className="ie-group-label">Baseline Import</span>
-          <select
-            value={templateMode}
-            onChange={e => setTemplateMode(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 12 }}
-          >
-            <option value="selected">Selected ({selectedDeviceIds.length} assets)</option>
-            <option value="all">Entire Fleet ({allDeviceIds.length} assets)</option>
-          </select>
-          <Button type={ButtonType.Secondary} onClick={handleGenerateTemplate}>↓ Generate Template</Button>
-          <Button type={ButtonType.Secondary} onClick={() => fileRef.current.click()}>↑ Upload Template</Button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".xlsx"
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-          />
-        </div>
+        {!selectedDeviceIds.length && (
+          <div className="actions-empty-hint">
+            Select assets and a date range above to load the results grid below.
+          </div>
+        )}
       </div>
     </>
   );

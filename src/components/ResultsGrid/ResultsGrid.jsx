@@ -115,7 +115,7 @@ export default function ResultsGrid({
   }
 
   if (!assetResults.length) {
-    return <div style={{ padding: 24, color: '#6b7280', textAlign: 'center' }}>Select assets and a date range to view PTO AUX hours.</div>;
+    return null;
   }
 
   const selectedArr = [...selectedRows];
