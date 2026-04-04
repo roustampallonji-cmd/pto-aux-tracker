@@ -318,6 +318,9 @@ function AssetDropdown({ label, items, selectedIds, onToggle, onSelectAll, onCle
   );
 }
 
+// ── AUX lock key ─────────────────────────────────────────────────────────────
+const LOCK_KEY = 'pto_aux_locked_columns_v1';
+
 // ── Status group data ─────────────────────────────────────────────────────────
 
 const STATUS_GROUP_DATA = [
@@ -336,6 +339,19 @@ export default function FilterPane({
   statusFilter, onStatusFilterChange,
   activeAuxSet,
 }) {
+  const [isLocked, setIsLocked] = useState(() => !!localStorage.getItem(LOCK_KEY));
+
+  function handleLock() {
+    localStorage.setItem(LOCK_KEY, JSON.stringify(activeAux));
+    setIsLocked(true);
+  }
+
+  function handleReset() {
+    localStorage.removeItem(LOCK_KEY);
+    setIsLocked(false);
+    onAuxChange([]);
+  }
+
   const selectedGroupIds = useMemo(() =>
     groups
       .filter(g => {
@@ -412,6 +428,28 @@ export default function FilterPane({
                 style={{ opacity: activeAuxSet.has(key) ? 1 : 0.4 }}
               />
             ))}
+          </div>
+
+          <div className="aux-controls">
+            <div className="aux-ctrl-group">
+              <span className="aux-ctrl-label">Selection</span>
+              <div className="aux-ctrl-pills">
+                <button className="aux-ctrl-pill" onClick={() => onAuxChange([...AUX_KEYS])}>✓ Select All</button>
+                <button className="aux-ctrl-pill" onClick={() => onAuxChange([])}>✗ Deselect All</button>
+              </div>
+            </div>
+            <div className="aux-ctrl-group">
+              <span className="aux-ctrl-label">Preferences</span>
+              <div className="aux-ctrl-pills">
+                <button
+                  className={`aux-ctrl-pill aux-ctrl-pill--lock${isLocked ? ' aux-ctrl-pill--locked' : ''}`}
+                  onClick={handleLock}
+                >
+                  🔒 {isLocked ? 'Locked' : 'Lock View'}
+                </button>
+                <button className="aux-ctrl-pill" onClick={handleReset}>↺ Reset</button>
+              </div>
+            </div>
           </div>
         </Card.Content>
       </Card>

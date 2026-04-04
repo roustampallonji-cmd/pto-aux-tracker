@@ -24,7 +24,12 @@ export default function App({ api, state }) {
   // ── Filter state ──────────────────────────────────────────────────────
   const [selectedDeviceIds, setSelectedDeviceIds] = useState([]);
   const [dateRange, setDateRange] = useState(getPresetRange('thisMonth'));
-  const [activeAux, setActiveAux] = useState(AUX_KEYS);
+  const [activeAux, setActiveAux] = useState(() => {
+    try {
+      const locked = localStorage.getItem('pto_aux_locked_columns_v1');
+      return locked ? JSON.parse(locked) : AUX_KEYS;
+    } catch { return AUX_KEYS; }
+  });
   const [statusFilter, setStatusFilter] = useState('all');
 
   // ── Results state ─────────────────────────────────────────────────────

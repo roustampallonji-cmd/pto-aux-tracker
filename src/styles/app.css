@@ -113,6 +113,71 @@ body {
   gap: 6px;
 }
 
+/* ── AUX control pills ── */
+.aux-controls {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aux-ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.aux-ctrl-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.aux-ctrl-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.aux-ctrl-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.aux-ctrl-pill:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.aux-ctrl-pill--lock {
+  color: #9ca3af;
+  border-color: #e2e8f0;
+  background: #f1f5f9;
+}
+
+.aux-ctrl-pill--locked {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #15803d;
+  font-weight: 600;
+}
+
+.aux-ctrl-pill--locked:hover {
+  background: #bbf7d0;
+  border-color: #15803d;
+}
+
 /* ── Inline asset dropdown (no portal) ── */
 .adr-wrap { position: relative; }
 
